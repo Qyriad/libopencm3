@@ -18,6 +18,7 @@
  * along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <libopencm3/cm3/scb.h>
 #include <libopencm3/cm3/vector.h>
 
 /* load optional platform dependent initialization routines */
@@ -44,7 +45,7 @@ vector_table_t vector_table = {
 	.hard_fault = hard_fault_handler,
 
 /* Those are defined only on CM3 or CM4 */
-#if defined(__ARM_ARCH_7M__) || defined (__ARM_ARCH_7EM__)
+#if defined(__ARM_ARCH_7M__) || defined(__ARM_ARCH_7EM__)
 	.memory_manage_fault = mem_manage_handler,
 	.bus_fault = bus_fault_handler,
 	.usage_fault = usage_fault_handler,
@@ -59,7 +60,7 @@ vector_table_t vector_table = {
 	}
 };
 
-void WEAK __attribute__ ((naked)) reset_handler(void)
+void __attribute__ ((weak, naked)) reset_handler(void)
 {
 	volatile unsigned *src, *dest;
 	funcp_t *fp;
@@ -74,6 +75,13 @@ void WEAK __attribute__ ((naked)) reset_handler(void)
 		*dest++ = 0;
 	}
 
+	/* Ensure 8-byte alignment of stack pointer on interrupts */
+	/* Enabled by default on most Cortex-M parts, but not M3 r1 */
+	SCB_CCR |= SCB_CCR_STKALIGN;
+
+	/* might be provided by platform specific vector.c */
+	pre_main();
+
 	/* Constructors. */
 	for (fp = &__preinit_array_start; fp < &__preinit_array_end; fp++) {
 		(*fp)();
@@ -81,9 +89,6 @@ void WEAK __attribute__ ((naked)) reset_handler(void)
 	for (fp = &__init_array_start; fp < &__init_array_end; fp++) {
 		(*fp)();
 	}
-
-	/* might be provided by platform specific vector.c */
-	pre_main();
 
 	/* Call the application's entry point. */
 	main();
@@ -112,7 +117,7 @@ void null_handler(void)
 #pragma weak sys_tick_handler = null_handler
 
 /* Those are defined only on CM3 or CM4 */
-#if defined(__ARM_ARCH_7M__) || defined (__ARM_ARCH_7EM__)
+#if defined(__ARM_ARCH_7M__) || defined(__ARM_ARCH_7EM__)
 #pragma weak mem_manage_handler = blocking_handler
 #pragma weak bus_fault_handler = blocking_handler
 #pragma weak usage_fault_handler = blocking_handler

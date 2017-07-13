@@ -40,8 +40,9 @@
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/flash.h>
 
-uint32_t rcc_core_frequency = 8000000; /* 8MHz after reset */
-uint32_t rcc_ppre_frequency = 8000000; /* 8MHz after reset */
+/* Set the default clock frequencies */
+uint32_t rcc_ahb_frequency = 8000000; /* 8MHz after reset */
+uint32_t rcc_apb1_frequency = 8000000; /* 8MHz after reset */
 
 /*---------------------------------------------------------------------------*/
 /** @brief RCC Clear the Oscillator Ready Interrupt Flag
@@ -55,22 +56,25 @@ uint32_t rcc_ppre_frequency = 8000000; /* 8MHz after reset */
 void rcc_osc_ready_int_clear(enum rcc_osc osc)
 {
 	switch (osc) {
-	case HSI14:
+	case RCC_HSI48:
+		RCC_CIR |= RCC_CIR_HSI48RDYC;
+		break;
+	case RCC_HSI14:
 		RCC_CIR |= RCC_CIR_HSI14RDYC;
 		break;
-	case HSI:
+	case RCC_HSI:
 		RCC_CIR |= RCC_CIR_HSIRDYC;
 		break;
-	case HSE:
+	case RCC_HSE:
 		RCC_CIR |= RCC_CIR_HSERDYC;
 		break;
-	case PLL:
+	case RCC_PLL:
 		RCC_CIR |= RCC_CIR_PLLRDYC;
 		break;
-	case LSE:
+	case RCC_LSE:
 		RCC_CIR |= RCC_CIR_LSERDYC;
 		break;
-	case LSI:
+	case RCC_LSI:
 		RCC_CIR |= RCC_CIR_LSIRDYC;
 		break;
 	}
@@ -85,22 +89,25 @@ void rcc_osc_ready_int_clear(enum rcc_osc osc)
 void rcc_osc_ready_int_enable(enum rcc_osc osc)
 {
 	switch (osc) {
-	case HSI14:
+	case RCC_HSI48:
+		RCC_CIR |= RCC_CIR_HSI48RDYIE;
+		break;
+	case RCC_HSI14:
 		RCC_CIR |= RCC_CIR_HSI14RDYIE;
 		break;
-	case HSI:
+	case RCC_HSI:
 		RCC_CIR |= RCC_CIR_HSIRDYIE;
 		break;
-	case HSE:
+	case RCC_HSE:
 		RCC_CIR |= RCC_CIR_HSERDYIE;
 		break;
-	case PLL:
+	case RCC_PLL:
 		RCC_CIR |= RCC_CIR_PLLRDYIE;
 		break;
-	case LSE:
+	case RCC_LSE:
 		RCC_CIR |= RCC_CIR_LSERDYIE;
 		break;
-	case LSI:
+	case RCC_LSI:
 		RCC_CIR |= RCC_CIR_LSIRDYIE;
 		break;
 	}
@@ -115,22 +122,25 @@ void rcc_osc_ready_int_enable(enum rcc_osc osc)
 void rcc_osc_ready_int_disable(enum rcc_osc osc)
 {
 	switch (osc) {
-	case HSI14:
+	case RCC_HSI48:
+		RCC_CIR &= ~RCC_CIR_HSI48RDYC;
+		break;
+	case RCC_HSI14:
 		RCC_CIR &= ~RCC_CIR_HSI14RDYC;
 		break;
-	case HSI:
+	case RCC_HSI:
 		RCC_CIR &= ~RCC_CIR_HSIRDYC;
 		break;
-	case HSE:
+	case RCC_HSE:
 		RCC_CIR &= ~RCC_CIR_HSERDYC;
 		break;
-	case PLL:
+	case RCC_PLL:
 		RCC_CIR &= ~RCC_CIR_PLLRDYC;
 		break;
-	case LSE:
+	case RCC_LSE:
 		RCC_CIR &= ~RCC_CIR_LSERDYC;
 		break;
-	case LSI:
+	case RCC_LSI:
 		RCC_CIR &= ~RCC_CIR_LSIRDYC;
 		break;
 	}
@@ -146,22 +156,25 @@ void rcc_osc_ready_int_disable(enum rcc_osc osc)
 int rcc_osc_ready_int_flag(enum rcc_osc osc)
 {
 	switch (osc) {
-	case HSI14:
+	case RCC_HSI48:
+		return (RCC_CIR & RCC_CIR_HSI48RDYF) != 0;
+		break;
+	case RCC_HSI14:
 		return (RCC_CIR & RCC_CIR_HSI14RDYF) != 0;
 		break;
-	case HSI:
+	case RCC_HSI:
 		return (RCC_CIR & RCC_CIR_HSIRDYF) != 0;
 		break;
-	case HSE:
+	case RCC_HSE:
 		return (RCC_CIR & RCC_CIR_HSERDYF) != 0;
 		break;
-	case PLL:
+	case RCC_PLL:
 		return (RCC_CIR & RCC_CIR_PLLRDYF) != 0;
 		break;
-	case LSE:
+	case RCC_LSE:
 		return (RCC_CIR & RCC_CIR_LSERDYF) != 0;
 		break;
-	case LSI:
+	case RCC_LSI:
 		return (RCC_CIR & RCC_CIR_LSIRDYF) != 0;
 		break;
 	}
@@ -189,34 +202,30 @@ int rcc_css_int_flag(void)
 	return ((RCC_CIR & RCC_CIR_CSSF) != 0);
 }
 
-/*---------------------------------------------------------------------------*/
-/** @brief RCC Wait for Oscillator Ready.
- *
- * @param[in] osc enum ::osc_t. Oscillator ID
- */
+bool rcc_is_osc_ready(enum rcc_osc osc)
+{
+	switch (osc) {
+	case RCC_HSI48:
+		return RCC_CR2 & RCC_CR2_HSI48RDY;
+	case RCC_HSI14:
+		return RCC_CR2 & RCC_CR2_HSI14RDY;
+	case RCC_HSI:
+		return RCC_CR & RCC_CR_HSIRDY;
+	case RCC_HSE:
+		return RCC_CR & RCC_CR_HSERDY;
+	case RCC_PLL:
+		return RCC_CR & RCC_CR_PLLRDY;
+	case RCC_LSE:
+		return RCC_BDCR & RCC_BDCR_LSERDY;
+	case RCC_LSI:
+		return RCC_CSR & RCC_CSR_LSIRDY;
+	}
+	return false;
+}
 
 void rcc_wait_for_osc_ready(enum rcc_osc osc)
 {
-	switch (osc) {
-	case HSI14:
-		while ((RCC_CIR & RCC_CIR_HSI14RDYF) != 0);
-		break;
-	case HSI:
-		while ((RCC_CIR & RCC_CIR_HSIRDYF) != 0);
-		break;
-	case HSE:
-		while ((RCC_CIR & RCC_CIR_HSERDYF) != 0);
-		break;
-	case PLL:
-		while ((RCC_CIR & RCC_CIR_PLLRDYF) != 0);
-		break;
-	case LSE:
-		while ((RCC_CIR & RCC_CIR_LSERDYF) != 0);
-		break;
-	case LSI:
-		while ((RCC_CIR & RCC_CIR_LSIRDYF) != 0);
-		break;
-	}
+	while (!rcc_is_osc_ready(osc));
 }
 
 /*---------------------------------------------------------------------------*/
@@ -234,23 +243,26 @@ void rcc_wait_for_osc_ready(enum rcc_osc osc)
 void rcc_osc_on(enum rcc_osc osc)
 {
 	switch (osc) {
-	case HSI14:
+	case RCC_HSI48:
+		RCC_CR2 |= RCC_CR2_HSI48ON;
+		break;
+	case RCC_HSI14:
 		RCC_CR2 |= RCC_CR2_HSI14ON;
 		break;
-	case HSI:
+	case RCC_HSI:
 		RCC_CR |= RCC_CR_HSION;
 		break;
-	case HSE:
+	case RCC_HSE:
 		RCC_CR |= RCC_CR_HSEON;
 		break;
-	case LSE:
+	case RCC_LSE:
 		RCC_BDCR |= RCC_BDCR_LSEON;
 		break;
-	case LSI:
+	case RCC_LSI:
 		RCC_CSR |= RCC_CSR_LSION;
 		break;
-	case PLL:
-		/* don't do anything */
+	case RCC_PLL:
+		RCC_CR |= RCC_CR_PLLON;
 		break;
 	}
 }
@@ -269,22 +281,25 @@ void rcc_osc_on(enum rcc_osc osc)
 void rcc_osc_off(enum rcc_osc osc)
 {
 	switch (osc) {
-	case HSI14:
+	case RCC_HSI48:
+		RCC_CR2 &= ~RCC_CR2_HSI48ON;
+		break;
+	case RCC_HSI14:
 		RCC_CR2 &= ~RCC_CR2_HSI14ON;
 		break;
-	case HSI:
+	case RCC_HSI:
 		RCC_CR &= ~RCC_CR_HSION;
 		break;
-	case HSE:
+	case RCC_HSE:
 		RCC_CR &= ~RCC_CR_HSEON;
 		break;
-	case LSE:
+	case RCC_LSE:
 		RCC_BDCR &= ~RCC_BDCR_LSEON;
 		break;
-	case LSI:
+	case RCC_LSI:
 		RCC_CSR &= ~RCC_CSR_LSION;
 		break;
-	case PLL:
+	case RCC_PLL:
 		/* don't do anything */
 		break;
 	}
@@ -322,16 +337,17 @@ void rcc_css_disable(void)
 void rcc_osc_bypass_enable(enum rcc_osc osc)
 {
 	switch (osc) {
-	case HSE:
+	case RCC_HSE:
 		RCC_CR |= RCC_CR_HSEBYP;
 		break;
-	case LSE:
+	case RCC_LSE:
 		RCC_BDCR |= RCC_BDCR_LSEBYP;
 		break;
-	case HSI14:
-	case HSI:
-	case LSI:
-	case PLL:
+	case RCC_HSI48:
+	case RCC_HSI14:
+	case RCC_HSI:
+	case RCC_LSI:
+	case RCC_PLL:
 		/* Do nothing */
 		break;
 	}
@@ -351,16 +367,17 @@ void rcc_osc_bypass_enable(enum rcc_osc osc)
 void rcc_osc_bypass_disable(enum rcc_osc osc)
 {
 	switch (osc) {
-	case HSE:
+	case RCC_HSE:
 		RCC_CR &= ~RCC_CR_HSEBYP;
 		break;
-	case LSE:
+	case RCC_LSE:
 		RCC_BDCR &= ~RCC_BDCR_LSEBYP;
 		break;
-	case HSI14:
-	case PLL:
-	case HSI:
-	case LSI:
+	case RCC_HSI48:
+	case RCC_HSI14:
+	case RCC_PLL:
+	case RCC_HSI:
+	case RCC_LSI:
 		/* Do nothing */
 		break;
 	}
@@ -376,18 +393,90 @@ void rcc_osc_bypass_disable(enum rcc_osc osc)
 void rcc_set_sysclk_source(enum rcc_osc clk)
 {
 	switch (clk) {
-	case HSI:
+	case RCC_HSI:
 		RCC_CFGR = (RCC_CFGR & ~RCC_CFGR_SW) | RCC_CFGR_SW_HSI;
 		break;
-	case HSE:
+	case RCC_HSE:
 		RCC_CFGR = (RCC_CFGR & ~RCC_CFGR_SW) | RCC_CFGR_SW_HSE;
 		break;
-	case PLL:
+	case RCC_PLL:
 		RCC_CFGR = (RCC_CFGR & ~RCC_CFGR_SW) | RCC_CFGR_SW_PLL;
 		break;
-	case LSI:
-	case LSE:
-	case HSI14:
+	case RCC_HSI48:
+		RCC_CFGR = (RCC_CFGR & ~RCC_CFGR_SW) | RCC_CFGR_SW_HSI48;
+		break;
+	case RCC_LSI:
+	case RCC_LSE:
+	case RCC_HSI14:
+		/* do nothing */
+		break;
+	}
+}
+
+/*---------------------------------------------------------------------------*/
+/** @brief RCC Set the Source for the USB Clock.
+ *
+ * @param[in] osc enum ::osc_t. Oscillator ID. Only HSI48 or PLL have
+ * effect.
+ */
+void rcc_set_usbclk_source(enum rcc_osc clk)
+{
+	switch (clk) {
+	case RCC_PLL:
+		RCC_CFGR3 |= RCC_CFGR3_USBSW;
+		break;
+	case RCC_HSI48:
+		RCC_CFGR3 &= ~RCC_CFGR3_USBSW;
+		break;
+	case RCC_HSI:
+	case RCC_HSE:
+	case RCC_LSI:
+	case RCC_LSE:
+	case RCC_HSI14:
+		/* do nothing */
+		break;
+	}
+}
+
+/*---------------------------------------------------------------------------*/
+/** @brief RCC Enable the RTC clock
+
+*/
+
+void rcc_enable_rtc_clock(void)
+{
+	RCC_BDCR |= RCC_BDCR_RTCEN;
+}
+
+/*---------------------------------------------------------------------------*/
+/** @brief RCC Disable the RTC clock
+
+*/
+
+void rcc_disable_rtc_clock(void)
+{
+	RCC_BDCR &= ~RCC_BDCR_RTCEN;
+}
+
+/*---------------------------------------------------------------------------*/
+/** @brief RCC Set the Source for the RTC clock
+
+@param[in] clock_source ::rcc_osc. RTC clock source. Only HSE/32, LSE and LSI.
+*/
+
+void rcc_set_rtc_clock_source(enum rcc_osc clk)
+{
+	switch (clk) {
+	case RCC_HSE:
+		RCC_BDCR = (RCC_BDCR & ~RCC_BDCR_RTCSEL) | RCC_BDCR_RTCSEL_HSE;
+		break;
+	case RCC_LSE:
+		RCC_BDCR = (RCC_BDCR & ~RCC_BDCR_RTCSEL) | RCC_BDCR_RTCSEL_LSE;
+		break;
+	case RCC_LSI:
+		RCC_BDCR = (RCC_BDCR & ~RCC_BDCR_RTCSEL) | RCC_BDCR_RTCSEL_LSI;
+		break;
+	default:
 		/* do nothing */
 		break;
 	}
@@ -403,14 +492,39 @@ void rcc_set_sysclk_source(enum rcc_osc clk)
 
 void rcc_set_pll_multiplication_factor(uint32_t mul)
 {
-	RCC_CFGR = (RCC_CFGR & RCC_CFGR_PLLMUL) | mul;
+	RCC_CFGR = (RCC_CFGR & ~RCC_CFGR_PLLMUL) | mul;
 }
 
+/*---------------------------------------------------------------------------*/
+/** @brief RCC Set the PLL Clock Source.
+
+@note This only has effect when the PLL is disabled.
+
+@param[in] pllsrc Unsigned int32. PLL clock source @ref rcc_cfgr_pcs
+*/
+
+void rcc_set_pll_source(uint32_t pllsrc)
+{
+	RCC_CFGR = (RCC_CFGR & ~RCC_CFGR_PLLSRC) |
+			(pllsrc << 16);
+}
+
+/*---------------------------------------------------------------------------*/
+/** @brief RCC Set the HSE Frequency Divider used as PLL Clock Source.
+
+@note This only has effect when the PLL is disabled.
+
+@param[in] pllxtpre Unsigned int32. HSE division factor @ref rcc_cfgr_hsepre
+*/
+
+void rcc_set_pllxtpre(uint32_t pllxtpre)
+{
+	RCC_CFGR = (RCC_CFGR & ~RCC_CFGR_PLLXTPRE) |
+			(pllxtpre << 17);
+}
 
 /*---------------------------------------------------------------------------*/
 /** @brief RCC Set the APB Prescale Factor.
- *
- * @note The APB1 clock frequency must not exceed 36MHz.
  *
  * @param[in] ppre1 Unsigned int32. APB prescale factor @ref rcc_cfgr_apb1pre
  */
@@ -431,17 +545,17 @@ void rcc_set_hpre(uint32_t hpre)
 	RCC_CFGR = (RCC_CFGR & ~RCC_CFGR_HPRE) | hpre;
 }
 
-
+/**
+ * Set PLL Source pre-divider **CAUTION**.
+ * On F03x and F05, prediv only applies to HSE source. On others, this
+ * is _after_ source selection. See also f3.
+ * @param[in] prediv division by prediv+1 @ref rcc_cfgr2_prediv
+ */
 void rcc_set_prediv(uint32_t prediv)
 {
 	RCC_CFGR2 = (RCC_CFGR2 & ~RCC_CFGR2_PREDIV) | prediv;
 }
 
-
-void rcc_set_mco(uint32_t mcosrc)
-{
-	RCC_CFGR = (RCC_CFGR & ~RCC_CFGR_MCO) | mcosrc;
-}
 
 /*---------------------------------------------------------------------------*/
 /** @brief RCC Get the System Clock Source.
@@ -454,184 +568,99 @@ enum rcc_osc rcc_system_clock_source(void)
 	/* Return the clock source which is used as system clock. */
 	switch (RCC_CFGR & RCC_CFGR_SWS) {
 	case RCC_CFGR_SWS_HSI:
-		return HSI;
+		return RCC_HSI;
 	case RCC_CFGR_SWS_HSE:
-		return HSE;
+		return RCC_HSE;
 	case RCC_CFGR_SWS_PLL:
-		return PLL;
+		return RCC_PLL;
+	case RCC_CFGR_SWS_HSI48:
+		return RCC_HSI48;
 	}
 
 	cm3_assert_not_reached();
 }
 
-void rcc_clock_setup_in_hsi_out_8mhz(void)
+/*---------------------------------------------------------------------------*/
+/** @brief RCC Get the USB Clock Source.
+ *
+ * @returns ::osc_t USB clock source:
+ */
+
+enum rcc_osc rcc_usb_clock_source(void)
 {
-	rcc_osc_on(HSI);
-	rcc_wait_for_osc_ready(HSI);
-	rcc_set_sysclk_source(HSI);
-
-	rcc_set_hpre(RCC_CFGR_HPRE_NODIV);
-	rcc_set_ppre(RCC_CFGR_PPRE_NODIV);
-
-	flash_set_ws(FLASH_ACR_LATENCY_000_024MHZ);
-
-	rcc_ppre_frequency = 8000000;
-	rcc_core_frequency = 8000000;
+	return (RCC_CFGR3 & RCC_CFGR3_USBSW) ? RCC_PLL : RCC_HSI48;
 }
 
-void rcc_clock_setup_in_hsi_out_16mhz(void)
+/**
+ * Set System Clock PLL at 48MHz from HSE at 8MHz.
+ */
+void rcc_clock_setup_in_hse_8mhz_out_48mhz(void)
 {
-	rcc_osc_on(HSI);
-	rcc_wait_for_osc_ready(HSI);
-	rcc_set_sysclk_source(HSI);
+	rcc_osc_on(RCC_HSE);
+	rcc_wait_for_osc_ready(RCC_HSE);
+	rcc_set_sysclk_source(RCC_HSE);
 
 	rcc_set_hpre(RCC_CFGR_HPRE_NODIV);
 	rcc_set_ppre(RCC_CFGR_PPRE_NODIV);
 
-	flash_set_ws(FLASH_ACR_LATENCY_000_024MHZ);
+	flash_set_ws(FLASH_ACR_LATENCY_024_048MHZ);
 
-	/* 8MHz * 4 / 2 = 16MHz	 */
-	rcc_set_pll_multiplication_factor(RCC_CFGR_PLLMUL_MUL4);
-
-	RCC_CFGR &= RCC_CFGR_PLLSRC;
-
-	rcc_osc_on(PLL);
-	rcc_wait_for_osc_ready(PLL);
-	rcc_set_sysclk_source(PLL);
-
-	rcc_ppre_frequency = 16000000;
-	rcc_core_frequency = 16000000;
-}
-
-
-void rcc_clock_setup_in_hsi_out_24mhz(void)
-{
-	rcc_osc_on(HSI);
-	rcc_wait_for_osc_ready(HSI);
-	rcc_set_sysclk_source(HSI);
-
-	rcc_set_hpre(RCC_CFGR_HPRE_NODIV);
-	rcc_set_ppre(RCC_CFGR_PPRE_NODIV);
-
-	flash_set_ws(FLASH_ACR_LATENCY_000_024MHZ);
-
-	/* 8MHz * 6 / 2 = 24MHz	 */
+	/* PLL: 8MHz * 6 = 48MHz */
 	rcc_set_pll_multiplication_factor(RCC_CFGR_PLLMUL_MUL6);
+	rcc_set_pll_source(RCC_CFGR_PLLSRC_HSE_CLK);
+	rcc_set_pllxtpre(RCC_CFGR_PLLXTPRE_HSE_CLK);
 
-	RCC_CFGR &= RCC_CFGR_PLLSRC;
+	rcc_osc_on(RCC_PLL);
+	rcc_wait_for_osc_ready(RCC_PLL);
+	rcc_set_sysclk_source(RCC_PLL);
 
-	rcc_osc_on(PLL);
-	rcc_wait_for_osc_ready(PLL);
-	rcc_set_sysclk_source(PLL);
-
-	rcc_ppre_frequency = 24000000;
-	rcc_core_frequency = 24000000;
+	rcc_apb1_frequency = 48000000;
+	rcc_ahb_frequency = 48000000;
 }
 
-void rcc_clock_setup_in_hsi_out_32mhz(void)
-{
-	rcc_osc_on(HSI);
-	rcc_wait_for_osc_ready(HSI);
-	rcc_set_sysclk_source(HSI);
-
-	rcc_set_hpre(RCC_CFGR_HPRE_NODIV);
-	rcc_set_ppre(RCC_CFGR_PPRE_NODIV);
-
-	flash_set_ws(FLASH_ACR_LATENCY_024_048MHZ);
-
-	/* 8MHz * 8 / 2 = 32MHz	 */
-	rcc_set_pll_multiplication_factor(RCC_CFGR_PLLMUL_MUL8);
-
-	RCC_CFGR &= RCC_CFGR_PLLSRC;
-
-	rcc_osc_on(PLL);
-	rcc_wait_for_osc_ready(PLL);
-	rcc_set_sysclk_source(PLL);
-
-	rcc_ppre_frequency = 32000000;
-	rcc_core_frequency = 32000000;
-}
-
-void rcc_clock_setup_in_hsi_out_40mhz(void)
-{
-	rcc_osc_on(HSI);
-	rcc_wait_for_osc_ready(HSI);
-	rcc_set_sysclk_source(HSI);
-
-	rcc_set_hpre(RCC_CFGR_HPRE_NODIV);
-	rcc_set_ppre(RCC_CFGR_PPRE_NODIV);
-
-	flash_set_ws(FLASH_ACR_LATENCY_024_048MHZ);
-
-	/* 8MHz * 10 / 2 = 40MHz	 */
-	rcc_set_pll_multiplication_factor(RCC_CFGR_PLLMUL_MUL10);
-
-	RCC_CFGR &= RCC_CFGR_PLLSRC;
-
-	rcc_osc_on(PLL);
-	rcc_wait_for_osc_ready(PLL);
-	rcc_set_sysclk_source(PLL);
-
-	rcc_ppre_frequency = 32000000;
-	rcc_core_frequency = 32000000;
-}
-
+/**
+ * Set System Clock PLL at 48MHz from HSI
+ */
 void rcc_clock_setup_in_hsi_out_48mhz(void)
 {
-	rcc_osc_on(HSI);
-	rcc_wait_for_osc_ready(HSI);
-	rcc_set_sysclk_source(HSI);
+	rcc_osc_on(RCC_HSI);
+	rcc_wait_for_osc_ready(RCC_HSI);
+	rcc_set_sysclk_source(RCC_HSI);
 
 	rcc_set_hpre(RCC_CFGR_HPRE_NODIV);
 	rcc_set_ppre(RCC_CFGR_PPRE_NODIV);
 
 	flash_set_ws(FLASH_ACR_LATENCY_024_048MHZ);
 
-	/* 8MHz * 12 / 2 = 24MHz	 */
-	rcc_set_pll_multiplication_factor(RCC_CFGR_PLLMUL_MUL16);
+	/* 8MHz * 12 / 2 = 48MHz */
+	rcc_set_pll_multiplication_factor(RCC_CFGR_PLLMUL_MUL12);
+	rcc_set_pll_source(RCC_CFGR_PLLSRC_HSI_CLK_DIV2);
 
-	RCC_CFGR &= RCC_CFGR_PLLSRC;
+	rcc_osc_on(RCC_PLL);
+	rcc_wait_for_osc_ready(RCC_PLL);
+	rcc_set_sysclk_source(RCC_PLL);
 
-	rcc_osc_on(PLL);
-	rcc_wait_for_osc_ready(PLL);
-	rcc_set_sysclk_source(PLL);
-
-	rcc_ppre_frequency = 48000000;
-	rcc_core_frequency = 48000000;
+	rcc_apb1_frequency = 48000000;
+	rcc_ahb_frequency = 48000000;
 }
 
-
-#define _RCC_REG(i)		MMIO32(RCC_BASE + ((i) >> 5))
-#define _RCC_BIT(i)		(1 << ((i) & 0x1f))
-
-void rcc_periph_clock_enable(enum rcc_periph_clken periph)
+/**
+ * Set System Clock HSI48 at 48MHz
+ */
+void rcc_clock_setup_in_hsi48_out_48mhz(void)
 {
-	_RCC_REG(periph) |= _RCC_BIT(periph);
+	rcc_osc_on(RCC_HSI48);
+	rcc_wait_for_osc_ready(RCC_HSI48);
+
+	rcc_set_hpre(RCC_CFGR_HPRE_NODIV);
+	rcc_set_ppre(RCC_CFGR_PPRE_NODIV);
+
+	flash_set_ws(FLASH_ACR_LATENCY_024_048MHZ);
+
+	rcc_set_sysclk_source(RCC_HSI48);
+
+	rcc_apb1_frequency = 48000000;
+	rcc_ahb_frequency = 48000000;
 }
-
-void rcc_periph_clock_disable(enum rcc_periph_clken periph)
-{
-	_RCC_REG(periph) &= ~_RCC_BIT(periph);
-}
-
-void rcc_periph_reset_pulse(enum rcc_periph_rst periph)
-{
-	_RCC_REG(periph) |= _RCC_BIT(periph);
-	_RCC_REG(periph) &= ~_RCC_BIT(periph);
-}
-
-void rcc_periph_reset_hold(enum rcc_periph_rst periph)
-{
-	_RCC_REG(periph) |= _RCC_BIT(periph);
-}
-
-void rcc_periph_reset_release(enum rcc_periph_rst periph)
-{
-	_RCC_REG(periph) &= ~_RCC_BIT(periph);
-}
-
-#undef _RCC_REG
-#undef _RCC_BIT
-
 /**@}*/
 

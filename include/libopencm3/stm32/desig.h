@@ -20,21 +20,13 @@
 #ifndef LIBOPENCM3_DESIG_H
 #define LIBOPENCM3_DESIG_H
 
-#include <libopencm3/stm32/memorymap.h>
 #include <libopencm3/cm3/common.h>
+#include <libopencm3/stm32/memorymap.h>
 
 /* --- Device Electronic Signature -------------------------------- */
 
 /* Flash size register */
 #define DESIG_FLASH_SIZE		MMIO16(DESIG_FLASH_SIZE_BASE + 0x00)
-
-/* Unique ID register (96 bits) */
-/* Note: ST says these may be accessed in any width if you choose */
-#define DESIG_UID_15_0			MMIO16(DESIG_UNIQUE_ID_BASE + 0x00)
-/* Listed as "This field value is also reserved for a future feature" WTH?! */
-#define DESIG_UID_31_16			MMIO16(DESIG_UNIQUE_ID_BASE + 0x02)
-#define DESIG_UID_63_32			MMIO32(DESIG_UNIQUE_ID_BASE + 0x04)
-#define DESIG_UID_95_64			MMIO32(DESIG_UNIQUE_ID_BASE + 0x08)
 
 BEGIN_DECLS
 
@@ -49,16 +41,24 @@ uint16_t desig_get_flash_size(void);
  * Note: ST specifies that bits 31..16 are _also_ reserved for future use
  * @param result pointer to at least 3xuint32_ts (96 bits)
  */
-void desig_get_unique_id(uint32_t result[]);
+void desig_get_unique_id(uint32_t *result);
 
 /**
  * Read the full 96 bit unique identifier and return it as a
  * zero-terminated string
  * @param string memory region to write the result to
- 8 @param string_len the size of string in bytes
+ * @param string_len the size of string in bytes
  */
 void desig_get_unique_id_as_string(char *string,
 				   unsigned int string_len);
+
+/** 
+ * Returns the same serial number that the factory DFU 
+ * bootloader reports (via USB descriptors). 
+ * @param string memory region to write the result to. This is 
+ *        expected to be a 13-byte buffer.
+ */
+void desig_get_unique_id_as_dfu(char *string);
 
 END_DECLS
 

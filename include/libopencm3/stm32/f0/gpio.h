@@ -31,7 +31,6 @@
 #ifndef LIBOPENCM3_GPIO_H
 #define LIBOPENCM3_GPIO_H
 
-#include <libopencm3/stm32/memorymap.h>
 #include <libopencm3/stm32/common/gpio_common_f24.h>
 
 /*****************************************************************************/
@@ -42,7 +41,7 @@
 /* Register definitions                                                      */
 /*****************************************************************************/
 
-#define GPIO_BRR(port)			MMIO32(port + 0x24)
+#define GPIO_BRR(port)			MMIO32((port) + 0x28)
 #define GPIOA_BRR			GPIO_BRR(GPIOA)
 #define GPIOB_BRR			GPIO_BRR(GPIOB)
 #define GPIOC_BRR			GPIO_BRR(GPIOC)

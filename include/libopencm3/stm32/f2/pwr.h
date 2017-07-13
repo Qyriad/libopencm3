@@ -30,10 +30,10 @@ LGPL License Terms @ref lgpl_license
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LIBOPENCM3_PWR_F2_H
-#define LIBOPENCM3_PWR_F2_H
+#ifndef LIBOPENCM3_PWR_H
+#define LIBOPENCM3_PWR_H
 
-#include <libopencm3/stm32/pwr.h>
+#include <libopencm3/stm32/common/pwr_common_v1.h>
 
 /*
  * This file extends the common STM32 version with definitions only

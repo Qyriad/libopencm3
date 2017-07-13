@@ -80,28 +80,40 @@ spi_reg_base.
 */
 
 void spi_reset(uint32_t spi_peripheral)
-{
-/* there is another way of resetting mechanism on F0. It will be extended to all
-  families of stm32 and this function will be deprecated and deleted in the
-  future.*/
-#if !defined(STM32F0)
-	switch (spi_peripheral) {
-	case SPI1:
-		rcc_peripheral_reset(&RCC_APB2RSTR, RCC_APB2RSTR_SPI1RST);
-		rcc_peripheral_clear_reset(&RCC_APB2RSTR, RCC_APB2RSTR_SPI1RST);
-		break;
-	case SPI2:
-		rcc_peripheral_reset(&RCC_APB1RSTR, RCC_APB1RSTR_SPI2RST);
-		rcc_peripheral_clear_reset(&RCC_APB1RSTR, RCC_APB1RSTR_SPI2RST);
-		break;
-#if defined(STM32F1) || defined(STM32F2) || defined(STM32F3) || defined(STM32F4)
-	case SPI3:
-		rcc_peripheral_reset(&RCC_APB1RSTR, RCC_APB1RSTR_SPI3RST);
-		rcc_peripheral_clear_reset(&RCC_APB1RSTR, RCC_APB1RSTR_SPI3RST);
+{	switch (spi_peripheral) {
+#if defined(SPI1_BASE)
+	case SPI1_BASE:
+		rcc_periph_reset_pulse(RST_SPI1);
 		break;
 #endif
+#if defined(SPI2_BASE)
+	case SPI2_BASE:
+		rcc_periph_reset_pulse(RST_SPI2);
+		break;
+#endif
+#if defined(SPI3_BASE)
+	case SPI3_BASE:
+		rcc_periph_reset_pulse(RST_SPI3);
+		break;
+#endif
+#if defined(SPI4_BASE)
+	case SPI4_BASE:
+		rcc_periph_reset_pulse(RST_SPI4);
+		break;
+#endif
+#if defined(SPI5_BASE)
+	case SPI5_BASE:
+		rcc_periph_reset_pulse(RST_SPI5);
+		break;
+#endif
+#if defined(SPI6_BASE)
+	case SPI6_BASE:
+		rcc_periph_reset_pulse(RST_SPI6);
+		break;
+#endif
+	default:
+		break;
 	}
-#endif
 }
 
 /* TODO: Error handling? */
@@ -380,7 +392,7 @@ void spi_set_receive_only_mode(uint32_t spi)
 }
 
 /*---------------------------------------------------------------------------*/
-/** @brief SPI Enable Slave Management by Hardware
+/** @brief SPI Disable Slave Management by Hardware
 
 In slave mode the NSS hardware input is used as a select enable for the slave.
 
@@ -404,6 +416,8 @@ enable/disable of the slave (@ref spi_set_nss_high).
 void spi_enable_software_slave_management(uint32_t spi)
 {
 	SPI_CR1(spi) |= SPI_CR1_SSM;
+	/* allow slave select to be an input */
+	SPI_CR2(spi) &= ~SPI_CR2_SSOE;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -508,6 +522,7 @@ void spi_set_slave_mode(uint32_t spi)
 /** @brief SPI Set the Clock Polarity to High when Idle
 
 @param[in] spi Unsigned int32. SPI peripheral identifier @ref spi_reg_base.
+@sa spi_set_clock_polarity_0
 */
 
 void spi_set_clock_polarity_1(uint32_t spi)
@@ -519,6 +534,7 @@ void spi_set_clock_polarity_1(uint32_t spi)
 /** @brief SPI Set the Clock Polarity to Low when Idle
 
 @param[in] spi Unsigned int32. SPI peripheral identifier @ref spi_reg_base.
+@sa spi_set_clock_polarity_1
 */
 
 void spi_set_clock_polarity_0(uint32_t spi)
@@ -530,6 +546,7 @@ void spi_set_clock_polarity_0(uint32_t spi)
 /** @brief SPI Set the Clock Phase to Capture on Trailing Edge
 
 @param[in] spi Unsigned int32. SPI peripheral identifier @ref spi_reg_base.
+@sa spi_set_clock_phase_0
 */
 
 void spi_set_clock_phase_1(uint32_t spi)
@@ -541,6 +558,7 @@ void spi_set_clock_phase_1(uint32_t spi)
 /** @brief SPI Set the Clock Phase to Capture on Leading Edge
 
 @param[in] spi Unsigned int32. SPI peripheral identifier @ref spi_reg_base.
+@sa spi_set_clock_phase_1
 */
 
 void spi_set_clock_phase_0(uint32_t spi)
@@ -693,6 +711,31 @@ void spi_enable_rx_dma(uint32_t spi)
 void spi_disable_rx_dma(uint32_t spi)
 {
 	SPI_CR2(spi) &= ~SPI_CR2_RXDMAEN;
+}
+
+/*---------------------------------------------------------------------------*/
+/** @brief SPI Standard Mode selection
+@details Set SPI standard Modes
+Mode | CPOL | CPHA
+---- | ---- | ----
+ 0   |  0   |  0
+ 1   |  0   |  1
+ 2   |  1   |  0
+ 3   |  1   |  1
+@param[in] spi Unsigned int32. SPI peripheral identifier @ref spi_reg_base.
+@param[in] mode Unsigned int8. Standard SPI mode (0, 1, 2, 3)
+@sa spi_set_clock_phase_0 spi_set_clock_phase_1
+@sa spi_set_clock_polarity_0 spi_set_clock_polarity_1
+*/
+
+void spi_set_standard_mode(uint32_t spi, uint8_t mode)
+{
+	if (mode > 3) {
+		return;
+	}
+
+	uint32_t reg32 = SPI_CR1(spi) & ~(SPI_CR1_CPOL | SPI_CR1_CPHA);
+	SPI_CR1(spi) = reg32 | mode;
 }
 
 /**@}*/

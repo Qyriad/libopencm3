@@ -31,13 +31,13 @@
 #ifndef LIBOPENCM3_USART_H
 #define LIBOPENCM3_USART_H
 
-#include <libopencm3/stm32/memorymap.h>
 #include <libopencm3/stm32/common/usart_common_all.h>
+#include <libopencm3/stm32/common/usart_common_v2.h>
 
 /* --- USART registers ----------------------------------------------------- */
 
 /* Control register 1 (USARTx_CR1) */
-#define USART_CR1(usart_base)		MMIO32(usart_base + 0x00)
+#define USART_CR1(usart_base)		MMIO32((usart_base) + 0x00)
 #define USART1_CR1			USART_CR1(USART1_BASE)
 #define USART2_CR1			USART_CR1(USART2_BASE)
 #define USART3_CR1			USART_CR1(USART3_BASE)
@@ -45,7 +45,7 @@
 #define UART5_CR1			USART_CR1(UART5_BASE)
 
 /* Control register 2 (USARTx_CR2) */
-#define USART_CR2(usart_base)		MMIO32(usart_base + 0x04)
+#define USART_CR2(usart_base)		MMIO32((usart_base) + 0x04)
 #define USART1_CR2			USART_CR2(USART1_BASE)
 #define USART2_CR2			USART_CR2(USART2_BASE)
 #define USART3_CR2			USART_CR2(USART3_BASE)
@@ -53,7 +53,7 @@
 #define UART5_CR2			USART_CR2(UART5_BASE)
 
 /* Control register 3 (USARTx_CR3) */
-#define USART_CR3(usart_base)		MMIO32(usart_base + 0x08)
+#define USART_CR3(usart_base)		MMIO32((usart_base) + 0x08)
 #define USART1_CR3			USART_CR3(USART1_BASE)
 #define USART2_CR3			USART_CR3(USART2_BASE)
 #define USART3_CR3			USART_CR3(USART3_BASE)
@@ -61,7 +61,7 @@
 #define UART5_CR3			USART_CR3(UART5_BASE)
 
 /* Baud rate register (USARTx_BRR) */
-#define USART_BRR(usart_base)		MMIO32(usart_base + 0x0C)
+#define USART_BRR(usart_base)		MMIO32((usart_base) + 0x0C)
 #define USART1_BRR			USART_BRR(USART1_BASE)
 #define USART2_BRR			USART_BRR(USART2_BASE)
 #define USART3_BRR			USART_BRR(USART3_BASE)
@@ -69,7 +69,7 @@
 #define UART5_BRR			USART_BRR(UART5_BASE)
 
 /* Guard time and prescaler register (USARTx_GTPR) */
-#define USART_GTPR(usart_base)		MMIO32(usart_base + 0x10)
+#define USART_GTPR(usart_base)		MMIO32((usart_base) + 0x10)
 #define USART1_GTPR			USART_GTPR(USART1_BASE)
 #define USART2_GTPR			USART_GTPR(USART2_BASE)
 #define USART3_GTPR			USART_GTPR(USART3_BASE)
@@ -77,7 +77,7 @@
 #define UART5_GTPR			USART_GTPR(UART5_BASE)
 
 /* Receiver timeout register (USART_RTOR) */
-#define USART_RTOR(usart_base)		MMIO32(usart_base + 0x14)
+#define USART_RTOR(usart_base)		MMIO32((usart_base) + 0x14)
 #define USART1_RTOR			USART_RTOR(USART1_BASE)
 #define USART2_RTOR			USART_RTOR(USART2_BASE)
 #define USART3_RTOR			USART_RTOR(USART3_BASE)
@@ -85,7 +85,7 @@
 #define UART5_RTOR			USART_RTOR(UART5_BASE)
 
 /* Request register (USART_RQR) */
-#define USART_RQR(usart_base)		MMIO32(usart_base + 0x18)
+#define USART_RQR(usart_base)		MMIO32((usart_base) + 0x18)
 #define USART1_RQR			USART_RQR(USART1_BASE)
 #define USART2_RQR			USART_RQR(USART2_BASE)
 #define USART3_RQR			USART_RQR(USART3_BASE)
@@ -93,7 +93,7 @@
 #define UART5_RQR			USART_RQR(UART5_BASE)
 
 /* Interrupt & status register (USART_ISR) */
-#define USART_ISR(usart_base)		MMIO32(usart_base + 0x1C)
+#define USART_ISR(usart_base)		MMIO32((usart_base) + 0x1C)
 #define USART1_ISR			USART_ISR(USART1_BASE)
 #define USART2_ISR			USART_ISR(USART2_BASE)
 #define USART3_ISR			USART_ISR(USART3_BASE)
@@ -101,7 +101,7 @@
 #define UART5_ISR			USART_ISR(UART5_BASE)
 
 /* Interrupt flag clear register (USART_ICR) */
-#define USART_ICR(usart_base)		MMIO32(usart_base + 0x20)
+#define USART_ICR(usart_base)		MMIO32((usart_base) + 0x20)
 #define USART1_ICR			USART_ICR(USART1_BASE)
 #define USART2_ICR			USART_ICR(USART2_BASE)
 #define USART3_ICR			USART_ICR(USART3_BASE)
@@ -109,7 +109,7 @@
 #define UART5_ICR			USART_ICR(UART5_BASE)
 
 /* Receive data register (USART_RDR) */
-#define USART_RDR(usart_base)		MMIO32(usart_base + 0x24)
+#define USART_RDR(usart_base)		MMIO32((usart_base) + 0x24)
 #define USART1_RDR			USART_RDR(USART1_BASE)
 #define USART2_RDR			USART_RDR(USART2_BASE)
 #define USART3_RDR			USART_RDR(USART3_BASE)
@@ -117,7 +117,7 @@
 #define UART5_RDR			USART_RDR(UART5_BASE)
 
 /* Transmit data register (USART_TDR) */
-#define USART_TDR(usart_base)		MMIO32(usart_base + 0x28)
+#define USART_TDR(usart_base)		MMIO32((usart_base) + 0x28)
 #define USART1_TDR			USART_TDR(USART1_BASE)
 #define USART2_TDR			USART_TDR(USART2_BASE)
 #define USART3_TDR			USART_TDR(USART3_BASE)
@@ -253,7 +253,7 @@
 /* ADDM7:7-bit Address Detection/4-bit Address Detection */
 #define USART_CR2_ADDM7			(1 << 4)
 
-/* ADD[3:0]: Addres of the usart node
+/* ADD[3:0]: Address of the usart node
 #define USART_CR2_ADD_MASK              0xF */
 
 /* --- USART_CR3 values ---------------------------------------------------- */
@@ -343,14 +343,6 @@
 /* Note: N/A on UART4/5 */
 #define USART_GTPR_PSC_MASK             0xFF
 
-/* --- USART_RTOR values --------------------------------------------------- */
-
-/* XXX: Preguntar */
-/* BLEN[7:0]: Block Length */
-#define USART_RTOR_BLEN1_MASK             (0xFF << 24)
-
-/* RTO[23:0]: Receiver timeout value */
-#define USART_RTOR_BLEN2_MASK             (0xFFFF << 0)
 
 /* --- USART_RQR values --------------------------------------------------- */
 
@@ -437,6 +429,44 @@
 /* PE: Parity error */
 #define USART_ISR_PE		            (1 << 0)
 
+/* --- USART_SR values ----------------------------------------------------- */
+/****************************************************************************/
+/** @defgroup usart_sr_flags USART Status register Flags
+@ingroup STM32F_usart_defines
+
+@{*/
+
+/** CTS: CTS flag */
+/** @note: undefined on UART4 and UART5 */
+#define USART_SR_CTS            USART_ISR_CTS
+
+/** LBD: LIN break detection flag */
+#define USART_SR_LBD            USART_ISR_LBDF
+
+/** TXE: Transmit data buffer empty */
+#define USART_SR_TXE            USART_ISR_TXE
+
+/** TC: Transmission complete */
+#define USART_SR_TC             USART_ISR_TC
+
+/** RXNE: Read data register not empty */
+#define USART_SR_RXNE           USART_ISR_RXNE
+
+/** IDLE: Idle line detected */
+#define USART_SR_IDLE           USART_ISR_IDLE
+
+/** ORE: Overrun error */
+#define USART_SR_ORE            USART_ISR_ORE
+
+/** NE: Noise error flag */
+#define USART_SR_NE             USART_ISR_NF
+
+/** FE: Framing error */
+#define USART_SR_FE             USART_ISR_FE
+
+/** PE: Parity error */
+#define USART_SR_PE             USART_ISR_PE
+/**@}*/
 
 /* --- USART_ICR values --------------------------------------------------- */
 

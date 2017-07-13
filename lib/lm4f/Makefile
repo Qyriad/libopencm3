@@ -19,19 +19,21 @@
 ##
 
 LIBNAME		= libopencm3_lm4f
+SRCLIBDIR	?= ..
 
 FP_FLAGS	?= -mfloat-abi=hard -mfpu=fpv4-sp-d16
 PREFIX		?= arm-none-eabi
 
 CC		= $(PREFIX)-gcc
 AR		= $(PREFIX)-ar
-CFLAGS		= -Os -g \
+TGT_CFLAGS	= -Os \
 		  -Wall -Wextra -Wimplicit-function-declaration \
 		  -Wredundant-decls -Wmissing-prototypes -Wstrict-prototypes \
 		  -Wundef -Wshadow \
 		  -I../../include -fno-common \
 		  -mcpu=cortex-m4 -mthumb $(FP_FLAGS) -Wstrict-prototypes \
 		  -ffunction-sections -fdata-sections -MD -DLM4F
+TGT_CFLAGS      += $(DEBUG_FLAGS)
 # ARFLAGS	= rcsv
 ARFLAGS		= rcs
 OBJS		= gpio.o vector.o assert.o systemcontrol.o rcc.o uart.o \

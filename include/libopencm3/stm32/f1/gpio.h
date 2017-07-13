@@ -36,7 +36,6 @@ LGPL License Terms @ref lgpl_license
 #ifndef LIBOPENCM3_GPIO_H
 #define LIBOPENCM3_GPIO_H
 
-#include <libopencm3/stm32/memorymap.h>
 #include <libopencm3/stm32/common/gpio_common_all.h>
 
 /* --- Convenience macros -------------------------------------------------- */
@@ -524,7 +523,7 @@ LGPL License Terms @ref lgpl_license
 /* --- GPIO registers ------------------------------------------------------ */
 
 /* Port configuration register low (GPIOx_CRL) */
-#define GPIO_CRL(port)			MMIO32(port + 0x00)
+#define GPIO_CRL(port)			MMIO32((port) + 0x00)
 #define GPIOA_CRL			GPIO_CRL(GPIOA)
 #define GPIOB_CRL			GPIO_CRL(GPIOB)
 #define GPIOC_CRL			GPIO_CRL(GPIOC)
@@ -534,7 +533,7 @@ LGPL License Terms @ref lgpl_license
 #define GPIOG_CRL			GPIO_CRL(GPIOG)
 
 /* Port configuration register low (GPIOx_CRH) */
-#define GPIO_CRH(port)			MMIO32(port + 0x04)
+#define GPIO_CRH(port)			MMIO32((port) + 0x04)
 #define GPIOA_CRH			GPIO_CRH(GPIOA)
 #define GPIOB_CRH			GPIO_CRH(GPIOB)
 #define GPIOC_CRH			GPIO_CRH(GPIOC)
@@ -544,7 +543,7 @@ LGPL License Terms @ref lgpl_license
 #define GPIOG_CRH			GPIO_CRH(GPIOG)
 
 /* Port input data register (GPIOx_IDR) */
-#define GPIO_IDR(port)			MMIO32(port + 0x08)
+#define GPIO_IDR(port)			MMIO32((port) + 0x08)
 #define GPIOA_IDR			GPIO_IDR(GPIOA)
 #define GPIOB_IDR			GPIO_IDR(GPIOB)
 #define GPIOC_IDR			GPIO_IDR(GPIOC)
@@ -554,7 +553,7 @@ LGPL License Terms @ref lgpl_license
 #define GPIOG_IDR			GPIO_IDR(GPIOG)
 
 /* Port output data register (GPIOx_ODR) */
-#define GPIO_ODR(port)			MMIO32(port + 0x0c)
+#define GPIO_ODR(port)			MMIO32((port) + 0x0c)
 #define GPIOA_ODR			GPIO_ODR(GPIOA)
 #define GPIOB_ODR			GPIO_ODR(GPIOB)
 #define GPIOC_ODR			GPIO_ODR(GPIOC)
@@ -564,7 +563,7 @@ LGPL License Terms @ref lgpl_license
 #define GPIOG_ODR			GPIO_ODR(GPIOG)
 
 /* Port bit set/reset register (GPIOx_BSRR) */
-#define GPIO_BSRR(port)			MMIO32(port + 0x10)
+#define GPIO_BSRR(port)			MMIO32((port) + 0x10)
 #define GPIOA_BSRR			GPIO_BSRR(GPIOA)
 #define GPIOB_BSRR			GPIO_BSRR(GPIOB)
 #define GPIOC_BSRR			GPIO_BSRR(GPIOC)
@@ -574,7 +573,7 @@ LGPL License Terms @ref lgpl_license
 #define GPIOG_BSRR			GPIO_BSRR(GPIOG)
 
 /* Port bit reset register (GPIOx_BRR) */
-#define GPIO_BRR(port)			MMIO16(port + 0x14)
+#define GPIO_BRR(port)			MMIO16((port) + 0x14)
 #define GPIOA_BRR			GPIO_BRR(GPIOA)
 #define GPIOB_BRR			GPIO_BRR(GPIOB)
 #define GPIOC_BRR			GPIO_BRR(GPIOC)
@@ -584,7 +583,7 @@ LGPL License Terms @ref lgpl_license
 #define GPIOG_BRR			GPIO_BRR(GPIOG)
 
 /* Port configuration lock register (GPIOx_LCKR) */
-#define GPIO_LCKR(port)			MMIO32(port + 0x18)
+#define GPIO_LCKR(port)			MMIO32((port) + 0x18)
 #define GPIOA_LCKR			GPIO_LCKR(GPIOA)
 #define GPIOB_LCKR			GPIO_LCKR(GPIOB)
 #define GPIOC_LCKR			GPIO_LCKR(GPIOC)
@@ -884,6 +883,15 @@ Line Devices only
 @ingroup gpio_defines
 
 @{*/
+/** various remaps, dma/dac/timer triggers (HD only) */
+#define AFIO_MAPR2_MISC_REMAP			(1 << 13)
+
+/** TIM12_CH1 and TIM12_CH2 remapping (HD only) */
+#define AFIO_MAPR2_TIM12_REMAP			(1 << 12)
+
+/** TIM76_DAC_DMA remap to DMA1/DMA2 */
+#define AFIO_MAPR2_TIM76_DAC_DMA_REMAPE		(1 << 11)
+
 /* FSMC_NADV_DISCONNECT: */
 /** The NADV is disconnected from its allocated pin */
 #define AFIO_MAPR2_FSMC_NADV_DISCONNECT			(1 << 10)
@@ -907,6 +915,21 @@ Line Devices only
 /* TIM9_REMAP: */
 /**  TIM9 remapping */
 #define AFIO_MAPR2_TIM9_REMAP			(1 << 5)
+
+/** TIM1_DMA channel 1/2 remapping */
+#define AFIO_MAPR2_TIM1_DMA_REMAP		(1 << 4)
+
+/** CEC remapping (PB8 vs PB10) */
+#define AFIO_MAPR2_CEC_REMAP			(1 << 3)
+
+/** TIM17 remapping (PB9 vs PB7) */
+#define AFIO_MAPR2_TIM17_REMAP			(1 << 2)
+
+/** TIM16 remapping (PB8 vs PB6) */
+#define AFIO_MAPR2_TIM16_REMAP			(1 << 1)
+
+/** TIM15 remapping channels 1/2 */
+#define AFIO_MAPR1_TIM16_REMAP			(1 << 0)
 
 /**@}*/
 

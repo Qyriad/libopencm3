@@ -18,30 +18,36 @@
 ##
 
 LIBNAME		= libopencm3_stm32f2
+SRCLIBDIR	?= ../..
 
 PREFIX		?= arm-none-eabi
 
 CC		= $(PREFIX)-gcc
 AR		= $(PREFIX)-ar
-CFLAGS		= -Os -g \
+TGT_CFLAGS	= -Os \
 		  -Wall -Wextra -Wimplicit-function-declaration \
 		  -Wredundant-decls -Wmissing-prototypes -Wstrict-prototypes \
 		  -Wundef -Wshadow \
 		  -I../../../include -fno-common \
 		  -mcpu=cortex-m3 -mthumb $(FP_FLAGS) -Wstrict-prototypes \
 		  -ffunction-sections -fdata-sections -MD -DSTM32F2
+TGT_CFLAGS      += $(DEBUG_FLAGS)
 # ARFLAGS	= rcsv
 ARFLAGS		= rcs
 
-OBJS		= gpio.o rcc.o
+OBJS		= gpio.o rcc.o desig.o
 
 OBJS            += crc_common_all.o dac_common_all.o dma_common_f24.o \
-                   gpio_common_all.o gpio_common_f0234.o i2c_common_all.o \
+                   gpio_common_all.o gpio_common_f0234.o i2c_common_v1.o \
                    iwdg_common_all.o rtc_common_l1f024.o spi_common_all.o \
-                   spi_common_f124.o timer_common_all.o timer_common_f234.o \
+                   spi_common_l1f124.o timer_common_all.o timer_common_f0234.o \
 		   timer_common_f24.o usart_common_all.o usart_common_f124.o \
 		   flash_common_f234.o flash_common_f24.o hash_common_f24.o \
-		   crypto_common_f24.o exti_common_all.o
+		   crypto_common_f24.o exti_common_all.o rcc_common_all.o
+OBJS		+= rng_common_v1.o
+
+OBJS            += usb.o usb_standard.o usb_control.o usb_fx07_common.o \
+                   usb_f107.o usb_f207.o usb_msc.o
 
 VPATH += ../../usb:../:../../cm3:../common
 

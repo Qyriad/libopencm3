@@ -23,7 +23,7 @@
 /* --- ARM Cortex-M0, M3 and M4 specific definitions ----------------------- */
 
 /* Private peripheral bus - Internal */
-#define PPBI_BASE                       0xE0000000
+#define PPBI_BASE                       (0xE0000000U)
 
 /* Those defined only on ARMv7 and above */
 #if defined(__ARM_ARCH_7M__) || defined(__ARM_ARCH_7EM__)
@@ -48,15 +48,6 @@
 #define TPIU_BASE                       (PPBI_BASE + 0x40000)
 #endif
 
-/* --- ITM: Instrumentation Trace Macrocell --- */
-/* TODO */
-
-/* --- DWT: Data Watchpoint and Trace unit --- */
-/* TODO */
-
-/* --- FPB: Flash Patch and Breakpoint unit --- */
-/* TODO */
-
 /* --- SCS: System Control Space --- */
 
 /* Those defined only on ARMv7 and above */
@@ -74,10 +65,8 @@
 /* SCB: System Control Block */
 #define SCB_BASE                        (SCS_BASE + 0x0D00)
 
-#ifdef CM0_PLUS
 /* MPU: Memory protection unit */
 #define MPU_BASE                        (SCS_BASE + 0x0D90)
-#endif
 
 /* Those defined only on CM0*/
 #if defined(__ARM_ARCH_6M__)

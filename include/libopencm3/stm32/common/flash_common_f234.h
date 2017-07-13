@@ -1,3 +1,11 @@
+/** @addtogroup flash_defines
+ *
+ * @author @htmlonly &copy; @endhtmlonly 2010
+ * Thomas Otto <tommi@viadmin.org>
+ * @author @htmlonly &copy; @endhtmlonly 2010
+ * Mark Butler <mbutler@physics.otago.ac.nz>
+ *
+ */
 /*
  * This file is part of the libopencm3 project.
  *
@@ -30,8 +38,7 @@
 /** @endcond */
 #ifndef LIBOPENCM3_FLASH_COMMON_F234_H
 #define LIBOPENCM3_FLASH_COMMON_F234_H
-
-#include <libopencm3/cm3/common.h>
+/**@{*/
 
 /* --- FLASH registers ----------------------------------------------------- */
 
@@ -43,6 +50,7 @@
 
 /* --- FLASH_ACR values ---------------------------------------------------- */
 
+#define FLASH_ACR_LATENCY_MASK		0x07
 #define FLASH_ACR_LATENCY_0WS		0x00
 #define FLASH_ACR_LATENCY_1WS		0x01
 #define FLASH_ACR_LATENCY_2WS		0x02
@@ -75,6 +83,7 @@ void flash_clear_status_flags(void);
 void flash_wait_for_last_operation(void);
 
 END_DECLS
+/**@}*/
 
 #endif
 /** @cond */

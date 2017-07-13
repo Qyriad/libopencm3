@@ -18,17 +18,19 @@
 ##
 
 LIBNAME		= libopencm3_sam3x
+SRCLIBDIR	?= ../..
 
 PREFIX		?= arm-none-eabi
 
 CC		= $(PREFIX)-gcc
 AR		= $(PREFIX)-ar
-CFLAGS		= -Os -g -Wall -Wextra -I../../../include -fno-common \
+TGT_CFLAGS	= -Os -Wall -Wextra -I../../../include -fno-common \
 		  -mcpu=cortex-m3 -mthumb $(FP_FLAGS) -Wstrict-prototypes \
 		  -ffunction-sections -fdata-sections -MD -DSAM3X
+TGT_CFLAGS      += $(DEBUG_FLAGS)
 # ARFLAGS	= rcsv
 ARFLAGS		= rcs
-OBJS		= gpio.o pmc.o usart.o
+OBJS		= gpio_common_all.o gpio_common_3a3u3x.o pmc.o usart.o
 
 VPATH += ../../usb:../../cm3:../common
 

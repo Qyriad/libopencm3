@@ -18,21 +18,23 @@
 ##
 
 LIBNAME		= libopencm3_lpc17xx
+SRCLIBDIR	?= ..
 
 PREFIX		?= arm-none-eabi
 
 CC		= $(PREFIX)-gcc
 AR		= $(PREFIX)-ar
-CFLAGS		= -O0 -g \
+TGT_CFLAGS	= -Os \
 		  -Wall -Wextra -Wimplicit-function-declaration \
 		  -Wredundant-decls -Wmissing-prototypes -Wstrict-prototypes \
 		  -Wundef -Wshadow \
 		  -I../../include -fno-common \
 		  -mcpu=cortex-m3 -mthumb $(FP_FLAGS) -Wstrict-prototypes \
 		  -ffunction-sections -fdata-sections -MD -DLPC17XX
+TGT_CFLAGS      += $(DEBUG_FLAGS)
 # ARFLAGS	= rcsv
 ARFLAGS		= rcs
-OBJS		= gpio.o
+OBJS		= gpio.o pwr.o
 
 VPATH += ../cm3
 

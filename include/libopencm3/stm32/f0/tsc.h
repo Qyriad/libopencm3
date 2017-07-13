@@ -31,9 +31,7 @@
 
 #ifndef LIBOPENCM3_TSC_H
 #define LIBOPENCM3_TSC_H
-
-#include <libopencm3/cm3/common.h>
-#include <libopencm3/stm32/memorymap.h>
+/**@{*/
 
 /*****************************************************************************/
 /* Module definitions                                                        */
@@ -54,7 +52,7 @@
 #define TSC_IOSCR			MMIO32(TSC_BASE + 0x20)
 #define TSC_IOCCR			MMIO32(TSC_BASE + 0x28)
 #define TSC_IOGCSR			MMIO32(TSC_BASE + 0x30)
-#define TSC_IOGxCR(x)			MMIO8(TSC_BASE + 0x34 + (x)*4)
+#define TSC_IOGxCR(x)			MMIO32(TSC_BASE + 0x34 + ((x)-1)*4)
 
 /*****************************************************************************/
 /* Register values                                                           */
@@ -156,5 +154,6 @@
 BEGIN_DECLS
 
 END_DECLS
+/**@}*/
 
 #endif

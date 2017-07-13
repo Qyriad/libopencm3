@@ -1,3 +1,11 @@
+/** @addtogroup flash_defines
+ *
+ * @author @htmlonly &copy; @endhtmlonly 2010
+ * Thomas Otto <tommi@viadmin.org>
+ * @author @htmlonly &copy; @endhtmlonly 2010
+ * Mark Butler <mbutler@physics.otago.ac.nz>
+ *
+ */
 /*
  * This file is part of the libopencm3 project.
  *
@@ -30,20 +38,21 @@
 /** @endcond */
 #ifndef LIBOPENCM3_FLASH_COMMON_F24_H
 #define LIBOPENCM3_FLASH_COMMON_F24_H
+/**@{*/
 
-#include <libopencm3/cm3/common.h>
 #include <libopencm3/stm32/common/flash_common_f234.h>
 
 /* --- FLASH registers ----------------------------------------------------- */
 
 #define FLASH_OPTCR			MMIO32(FLASH_MEM_INTERFACE_BASE + 0x14)
+#define FLASH_OPTCR1			MMIO32(FLASH_MEM_INTERFACE_BASE + 0x18)
 
 /* --- FLASH_ACR values ---------------------------------------------------- */
 
 #define FLASH_ACR_DCRST			(1 << 12)
 #define FLASH_ACR_ICRST			(1 << 11)
-#define FLASH_ACR_DCE			(1 << 10)
-#define FLASH_ACR_ICE			(1 << 9)
+#define FLASH_ACR_DCEN			(1 << 10)
+#define FLASH_ACR_ICEN			(1 << 9)
 #define FLASH_ACR_PRFTEN		(1 << 8)
 
 /* --- FLASH_SR values ----------------------------------------------------- */
@@ -65,22 +74,19 @@
 #define FLASH_CR_MER			(1 << 2)
 #define FLASH_CR_SER			(1 << 1)
 #define FLASH_CR_PG			(1 << 0)
-#define FLASH_CR_SECTOR_0		(0x00 << 3)
-#define FLASH_CR_SECTOR_1		(0x01 << 3)
-#define FLASH_CR_SECTOR_2		(0x02 << 3)
-#define FLASH_CR_SECTOR_3		(0x03 << 3)
-#define FLASH_CR_SECTOR_4		(0x04 << 3)
-#define FLASH_CR_SECTOR_5		(0x05 << 3)
-#define FLASH_CR_SECTOR_6		(0x06 << 3)
-#define FLASH_CR_SECTOR_7		(0x07 << 3)
-#define FLASH_CR_SECTOR_8		(0x08 << 3)
-#define FLASH_CR_SECTOR_9		(0x09 << 3)
-#define FLASH_CR_SECTOR_10		(0x0a << 3)
-#define FLASH_CR_SECTOR_11		(0x0b << 3)
-#define FLASH_CR_PROGRAM_X8		(0x00 << 8)
-#define FLASH_CR_PROGRAM_X16		(0x01 << 8)
-#define FLASH_CR_PROGRAM_X32		(0x02 << 8)
-#define FLASH_CR_PROGRAM_X64		(0x03 << 8)
+#define FLASH_CR_SNB_SHIFT		3
+#define FLASH_CR_SNB_MASK		0x1f
+#define FLASH_CR_PROGRAM_MASK		0x3
+#define FLASH_CR_PROGRAM_SHIFT		8
+/** @defgroup flash_cr_program_width Flash programming width
+@ingroup flash_group
+
+@{*/
+#define FLASH_CR_PROGRAM_X8		0
+#define FLASH_CR_PROGRAM_X16		1
+#define FLASH_CR_PROGRAM_X32		2
+#define FLASH_CR_PROGRAM_X64		3
+/**@}*/
 
 /* --- FLASH_OPTCR values -------------------------------------------------- */
 
@@ -95,6 +101,10 @@
 #define FLASH_OPTCR_BOR_LEVEL_2		(0x01 << 2)
 #define FLASH_OPTCR_BOR_LEVEL_1		(0x02 << 2)
 #define FLASH_OPTCR_BOR_OFF		(0x03 << 2)
+
+/* --- FLASH_OPTCR1 values ------------------------------------------------- */
+/* Only on some devices */
+/* FLASH_OPTCR1[27:16]: nWRP bank 2 */
 
 /* --- FLASH Keys -----------------------------------------------------------*/
 
@@ -128,6 +138,7 @@ void flash_program(uint32_t address, uint8_t *data, uint32_t len);
 void flash_program_option_bytes(uint32_t data);
 
 END_DECLS
+/**@}*/
 
 #endif
 /** @cond */
@@ -136,4 +147,3 @@ END_DECLS
 #warning "only via flash.h"
 #endif
 /** @endcond */
-

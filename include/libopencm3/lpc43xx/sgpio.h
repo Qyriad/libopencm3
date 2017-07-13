@@ -688,7 +688,7 @@ typedef struct {
 } sgpio_t;
 
 /* Global access to SGPIO structure */
-#define SGPIO   ((sgpio_t*)SGPIO_PORT_BASE)
+#define SGPIO   ((sgpio_t *)SGPIO_PORT_BASE)
 
 /**@}*/
 

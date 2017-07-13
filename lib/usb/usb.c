@@ -39,28 +39,6 @@ LGPL License Terms @ref lgpl_license
 #include <libopencm3/usb/usbd.h>
 #include "usb_private.h"
 
-/**
- * Main initialization entry point.
- *
- * Initialize the USB firmware library to implement the USB device described
- * by the descriptors provided.
- *
- * It is required that the 48MHz USB clock is already available.
- *
- * @param driver TODO
- * @param dev Pointer to USB device descriptor. This must not be changed while
- *            the device is in use.
- * @param conf Pointer to array of USB configuration descriptors. These must
- *             not be changed while the device is in use. The length of this
- *             array is determined by the bNumConfigurations field in the
- *             device descriptor.
- * @param strings TODO
- * @param control_buffer Pointer to array that would hold the data
- *                       received during control requests with DATA
- *                       stage
- * @param control_buffer_size Size of control_buffer
- * @return Zero on success (currently cannot fail).
- */
 usbd_device *usbd_init(const usbd_driver *driver,
 		       const struct usb_device_descriptor *dev,
 		       const struct usb_config_descriptor *conf,
@@ -85,6 +63,11 @@ usbd_device *usbd_init(const usbd_driver *driver,
 	    _usbd_control_out;
 	usbd_dev->user_callback_ctr[0][USB_TRANSACTION_IN] =
 	    _usbd_control_in;
+
+	int i;
+	for (i = 0; i < MAX_USER_SET_CONFIG_CALLBACK; i++) {
+		usbd_dev->user_callback_set_config[i] = NULL;
+	}
 
 	return usbd_dev;
 }
@@ -115,7 +98,7 @@ void _usbd_reset(usbd_device *usbd_dev)
 {
 	usbd_dev->current_address = 0;
 	usbd_dev->current_config = 0;
-	usbd_ep_setup(usbd_dev, 0, USB_ENDPOINT_ATTR_CONTROL, 64, NULL);
+	usbd_ep_setup(usbd_dev, 0, USB_ENDPOINT_ATTR_CONTROL, usbd_dev->desc->bMaxPacketSize0, NULL);
 	usbd_dev->driver->set_address(usbd_dev, 0);
 
 	if (usbd_dev->user_callback_reset) {
@@ -138,8 +121,7 @@ void usbd_disconnect(usbd_device *usbd_dev, bool disconnected)
 }
 
 void usbd_ep_setup(usbd_device *usbd_dev, uint8_t addr, uint8_t type,
-		   uint16_t max_size,
-		   void (*callback)(usbd_device *usbd_dev, uint8_t ep))
+		   uint16_t max_size, usbd_endpoint_callback callback)
 {
 	usbd_dev->driver->ep_setup(usbd_dev, addr, type, max_size, callback);
 }

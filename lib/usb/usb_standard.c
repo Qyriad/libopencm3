@@ -39,11 +39,27 @@ LGPL License Terms @ref lgpl_license
 #include <libopencm3/usb/usbd.h>
 #include "usb_private.h"
 
-void usbd_register_set_config_callback(usbd_device *usbd_dev,
-				       void (*callback)(usbd_device *usbd_dev,
-				       uint16_t wValue))
+int usbd_register_set_config_callback(usbd_device *usbd_dev,
+				       usbd_set_config_callback callback)
 {
-	usbd_dev->user_callback_set_config = callback;
+	int i;
+
+	for (i = 0; i < MAX_USER_SET_CONFIG_CALLBACK; i++) {
+		if (usbd_dev->user_callback_set_config[i]) {
+			continue;
+		}
+
+		usbd_dev->user_callback_set_config[i] = callback;
+		return 0;
+	}
+
+	return -1;
+}
+
+void usbd_register_set_altsetting_callback(usbd_device *usbd_dev,
+					usbd_set_altsetting_callback callback)
+{
+	usbd_dev->user_callback_set_altsetting = callback;
 }
 
 static uint16_t build_config_descriptor(usbd_device *usbd_dev,
@@ -83,12 +99,14 @@ static uint16_t build_config_descriptor(usbd_device *usbd_dev,
 			total += count;
 			totallen += iface->bLength;
 			/* Copy extra bytes (function descriptors). */
-			memcpy(buf, iface->extra,
-			       count = MIN(len, iface->extralen));
-			buf += count;
-			len -= count;
-			total += count;
-			totallen += iface->extralen;
+			if (iface->extra) {
+				memcpy(buf, iface->extra,
+				       count = MIN(len, iface->extralen));
+				buf += count;
+				len -= count;
+				total += count;
+				totallen += iface->extralen;
+			}
 			/* For each endpoint... */
 			for (k = 0; k < iface->bNumEndpoints; k++) {
 				const struct usb_endpoint_descriptor *ep =
@@ -98,6 +116,15 @@ static uint16_t build_config_descriptor(usbd_device *usbd_dev,
 				len -= count;
 				total += count;
 				totallen += ep->bLength;
+				/* Copy extra bytes (class specific). */
+				if (ep->extra) {
+					memcpy(buf, ep->extra,
+					       count = MIN(len, ep->extralen));
+					buf += count;
+					len -= count;
+					total += count;
+					totallen += ep->extralen;
+				}
 			}
 		}
 	}
@@ -166,7 +193,7 @@ static int usb_standard_get_descriptor(usbd_device *usbd_dev,
 				return USBD_REQ_NOTSUPP;
 			}
 
-			/* Ths string is returned as UTF16, hence the
+			/* This string is returned as UTF16, hence the
 			 * multiplication
 			 */
 			sd->bLength = strlen(usbd_dev->strings[array_idx]) * 2 +
@@ -219,23 +246,44 @@ static int usb_standard_set_configuration(usbd_device *usbd_dev,
 					  struct usb_setup_data *req,
 					  uint8_t **buf, uint16_t *len)
 {
-	int i;
+	unsigned i;
+	int found_index = -1;
+	const struct usb_config_descriptor *cfg;
 
 	(void)req;
 	(void)buf;
 	(void)len;
 
-	/* Is this correct, or should we reset alternate settings. */
-	if (req->wValue == usbd_dev->current_config) {
-		return 1;
+	if (req->wValue > 0) {
+		for (i = 0; i < usbd_dev->desc->bNumConfigurations; i++) {
+			if (req->wValue
+			    == usbd_dev->config[i].bConfigurationValue) {
+				found_index = i;
+				break;
+			}
+		}
+		if (found_index < 0) {
+			return USBD_REQ_NOTSUPP;
+		}
 	}
 
-	usbd_dev->current_config = req->wValue;
+	usbd_dev->current_config = found_index + 1;
+
+	if (usbd_dev->current_config > 0) {
+		cfg = &usbd_dev->config[usbd_dev->current_config - 1];
+
+		/* reset all alternate settings configuration */
+		for (i = 0; i < cfg->bNumInterfaces; i++) {
+			if (cfg->interface[i].cur_altsetting) {
+				*cfg->interface[i].cur_altsetting = 0;
+			}
+		}
+	}
 
 	/* Reset all endpoints. */
 	usbd_dev->driver->ep_reset(usbd_dev);
 
-	if (usbd_dev->user_callback_set_config) {
+	if (usbd_dev->user_callback_set_config[0]) {
 		/*
 		 * Flush control callbacks. These will be reregistered
 		 * by the user handler.
@@ -244,7 +292,12 @@ static int usb_standard_set_configuration(usbd_device *usbd_dev,
 			usbd_dev->user_control_callback[i].cb = NULL;
 		}
 
-		usbd_dev->user_callback_set_config(usbd_dev, req->wValue);
+		for (i = 0; i < MAX_USER_SET_CONFIG_CALLBACK; i++) {
+			if (usbd_dev->user_callback_set_config[i]) {
+				usbd_dev->user_callback_set_config[i](usbd_dev,
+								req->wValue);
+			}
+		}
 	}
 
 	return 1;
@@ -259,7 +312,13 @@ static int usb_standard_get_configuration(usbd_device *usbd_dev,
 	if (*len > 1) {
 		*len = 1;
 	}
-	(*buf)[0] = usbd_dev->current_config;
+	if (usbd_dev->current_config > 0) {
+		const struct usb_config_descriptor *cfg =
+			&usbd_dev->config[usbd_dev->current_config - 1];
+		(*buf)[0] = cfg->bConfigurationValue;
+	} else {
+		(*buf)[0] = 0;
+	}
 
 	return 1;
 }
@@ -268,32 +327,56 @@ static int usb_standard_set_interface(usbd_device *usbd_dev,
 				      struct usb_setup_data *req,
 				      uint8_t **buf, uint16_t *len)
 {
-	(void)usbd_dev;
-	(void)req;
+	const struct usb_config_descriptor *cfx =
+		&usbd_dev->config[usbd_dev->current_config - 1];
+	const struct usb_interface *iface;
+
 	(void)buf;
 
-	/* FIXME: Adapt if we have more than one interface. */
-	if (req->wValue != 0) {
-		return 0;
+	if (req->wIndex >= cfx->bNumInterfaces) {
+		return USBD_REQ_NOTSUPP;
 	}
+
+	iface = &cfx->interface[req->wIndex];
+
+	if (req->wValue >= iface->num_altsetting) {
+		return USBD_REQ_NOTSUPP;
+	}
+
+	if (iface->cur_altsetting) {
+		*iface->cur_altsetting = req->wValue;
+	} else if (req->wValue > 0) {
+		return USBD_REQ_NOTSUPP;
+	}
+
+	if (usbd_dev->user_callback_set_altsetting) {
+			usbd_dev->user_callback_set_altsetting(usbd_dev,
+							       req->wIndex,
+							       req->wValue);
+	}
+
 	*len = 0;
 
-	return 1;
+	return USBD_REQ_HANDLED;
 }
 
 static int usb_standard_get_interface(usbd_device *usbd_dev,
 				      struct usb_setup_data *req,
 				      uint8_t **buf, uint16_t *len)
 {
-	(void)usbd_dev;
-	(void)req;
-	(void)buf;
+	uint8_t *cur_altsetting;
+	const struct usb_config_descriptor *cfx =
+		&usbd_dev->config[usbd_dev->current_config - 1];
 
-	/* FIXME: Adapt if we have more than one interface. */
+	if (req->wIndex >= cfx->bNumInterfaces) {
+		return USBD_REQ_NOTSUPP;
+	}
+
 	*len = 1;
-	(*buf)[0] = 0;
+	cur_altsetting = cfx->interface[req->wIndex].cur_altsetting;
+	(*buf)[0] = (cur_altsetting) ? *cur_altsetting : 0;
 
-	return 1;
+	return USBD_REQ_HANDLED;
 }
 
 static int usb_standard_device_get_status(usbd_device *usbd_dev,

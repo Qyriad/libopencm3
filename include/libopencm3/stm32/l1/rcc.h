@@ -1,22 +1,23 @@
-/** @defgroup STM32L1xx_rcc_defines RCC Defines
-
-@ingroup STM32L1xx_defines
-
-@brief <b>libopencm3 STM32L1xx Reset and Clock Control</b>
-
-@version 1.0.0
-
-@author @htmlonly &copy; @endhtmlonly 2009
-Federico Ruiz-Ugalde \<memeruiz at gmail dot com\>
-@author @htmlonly &copy; @endhtmlonly 2009
-Uwe Hermann <uwe@hermann-uwe.de>
-@author @htmlonly &copy; @endhtmlonly 2012
-Karl Palsson <karlp@tweak.net.au>
-
-@date 11 November 2012
-
-LGPL License Terms @ref lgpl_license
- */
+/** @defgroup rcc_defines RCC Defines
+ *
+ * @ingroup STM32L1xx_defines
+ *
+ * @brief <b>Defined Constants and Types for the STM32L1xx Reset and Clock
+ * Control</b>
+ *
+ * @version 1.0.0
+ *
+ * @author @htmlonly &copy; @endhtmlonly 2009
+ * Federico Ruiz-Ugalde \<memeruiz at gmail dot com\>
+ * @author @htmlonly &copy; @endhtmlonly 2009
+ * Uwe Hermann <uwe@hermann-uwe.de>
+ * @author @htmlonly &copy; @endhtmlonly 2012
+ * Karl Palsson <karlp@tweak.net.au>
+ *
+ * @date 11 November 2012
+ *
+ * LGPL License Terms @ref lgpl_license
+ *  */
 
 /*
  * This file is part of the libopencm3 project.
@@ -47,8 +48,6 @@ LGPL License Terms @ref lgpl_license
 #ifndef LIBOPENCM3_RCC_H
 #define LIBOPENCM3_RCC_H
 
-#include <libopencm3/stm32/memorymap.h>
-#include <libopencm3/cm3/common.h>
 #include <libopencm3/stm32/pwr.h>
 
 /* --- RCC registers ------------------------------------------------------- */
@@ -70,7 +69,8 @@ LGPL License Terms @ref lgpl_license
 
 /* --- RCC_CR values ------------------------------------------------------- */
 
-/* RTCPRE[1:0] at 30:29 */
+#define RCC_CR_RTCPRE_SHIFT			29
+#define RCC_CR_RTCPRE_MASK			0x3
 #define RCC_CR_CSSON				(1 << 28)
 #define RCC_CR_PLLRDY				(1 << 25)
 #define RCC_CR_PLLON				(1 << 24)
@@ -89,8 +89,10 @@ LGPL License Terms @ref lgpl_license
 #define RCC_CR_RTCPRE_SHIFT	29
 #define RCC_CR_RTCPRE_MASK	0x3
 
-/* --- RCC_ICSCR values ---------------------------------------------------- */
-
+/** @defgroup rcc_icscr_defines RCC_ICSCR definitions
+ * @brief Internal clock sources calibration register
+ * @ingroup rcc_defines
+ *@{*/
 #define RCC_ICSCR_MSITRIM_SHIFT		24
 #define RCC_ICSCR_MSITRIM_MASK		0xff
 #define RCC_ICSCR_MSICAL_SHIFT		16
@@ -98,6 +100,9 @@ LGPL License Terms @ref lgpl_license
 
 #define RCC_ICSCR_MSIRANGE_SHIFT	13
 #define RCC_ICSCR_MSIRANGE_MASK		0x7
+/** @defgroup rcc_icscr_msirange MSI Ranges
+ * @ingroup rcc_icscr_defines
+ *@{*/
 #define RCC_ICSCR_MSIRANGE_65KHZ	0x0
 #define RCC_ICSCR_MSIRANGE_131KHZ	0x1
 #define RCC_ICSCR_MSIRANGE_262KHZ	0x2
@@ -105,30 +110,35 @@ LGPL License Terms @ref lgpl_license
 #define RCC_ICSCR_MSIRANGE_1MHZ		0x4
 #define RCC_ICSCR_MSIRANGE_2MHZ		0x5
 #define RCC_ICSCR_MSIRANGE_4MHZ		0x6
-
+/**@}*/
 #define RCC_ICSCR_HSITRIM_SHIFT		8
 #define RCC_ICSCR_HSITRIM_MASK		0x1f
 #define RCC_ICSCR_HSICAL_SHIFT		0
 #define RCC_ICSCR_HSICAL_MASK		0xff
+/**@}*/
 
 /* --- RCC_CFGR values ----------------------------------------------------- */
 
 /* MCOPRE */
-#define RCC_CFGR_MCOPRE_DIV1	    0
-#define RCC_CFGR_MCOPRE_DIV2	    1
-#define RCC_CFGR_MCOPRE_DIV4	    2
-#define RCC_CFGR_MCOPRE_DIV8	    3
-#define RCC_CFGR_MCOPRE_DIV16	    4
+#define RCC_CFGR_MCOPRE_DIV1	0
+#define RCC_CFGR_MCOPRE_DIV2	1
+#define RCC_CFGR_MCOPRE_DIV4	2
+#define RCC_CFGR_MCOPRE_DIV8	3
+#define RCC_CFGR_MCOPRE_DIV16	4
+#define RCC_CFGR_MCOPRE_SHIFT	28
+#define RCC_CFGR_MCOPRE_MASK	0x7
 
 /* MCO: Microcontroller clock output */
 #define RCC_CFGR_MCO_NOCLK			0x0
 #define RCC_CFGR_MCO_SYSCLK			0x1
-#define RCC_CFGR_MCO_HSICLK			0x2
-#define RCC_CFGR_MCO_MSICLK			0x3
-#define RCC_CFGR_MCO_HSECLK			0x4
-#define RCC_CFGR_MCO_PLLCLK			0x5
-#define RCC_CFGR_MCO_LSICLK			0x6
-#define RCC_CFGR_MCO_LSECLK			0x7
+#define RCC_CFGR_MCO_HSI			0x2
+#define RCC_CFGR_MCO_MSI			0x3
+#define RCC_CFGR_MCO_HSE			0x4
+#define RCC_CFGR_MCO_PLL			0x5
+#define RCC_CFGR_MCO_LSI			0x6
+#define RCC_CFGR_MCO_LSE			0x7
+#define RCC_CFGR_MCO_SHIFT			24
+#define RCC_CFGR_MCO_MASK			0x7
 
 /* PLL Output division selection */
 #define RCC_CFGR_PLLDIV_DIV2	0x1
@@ -160,6 +170,8 @@ LGPL License Terms @ref lgpl_license
 #define RCC_CFGR_PPRE2_HCLK_DIV4		0x5
 #define RCC_CFGR_PPRE2_HCLK_DIV8		0x6
 #define RCC_CFGR_PPRE2_HCLK_DIV16		0x7
+#define RCC_CFGR_PPRE2_MASK			0x7
+#define RCC_CFGR_PPRE2_SHIFT			11
 
 /* PPRE1: APB low-speed prescaler (APB1) */
 #define RCC_CFGR_PPRE1_HCLK_NODIV		0x0
@@ -167,6 +179,8 @@ LGPL License Terms @ref lgpl_license
 #define RCC_CFGR_PPRE1_HCLK_DIV4		0x5
 #define RCC_CFGR_PPRE1_HCLK_DIV8		0x6
 #define RCC_CFGR_PPRE1_HCLK_DIV16		0x7
+#define RCC_CFGR_PPRE1_MASK			0x7
+#define RCC_CFGR_PPRE1_SHIFT			8
 
 /* HPRE: AHB prescaler */
 #define RCC_CFGR_HPRE_SYSCLK_NODIV		0x0
@@ -178,18 +192,24 @@ LGPL License Terms @ref lgpl_license
 #define RCC_CFGR_HPRE_SYSCLK_DIV128		0xd
 #define RCC_CFGR_HPRE_SYSCLK_DIV256		0xe
 #define RCC_CFGR_HPRE_SYSCLK_DIV512		0xf
+#define RCC_CFGR_HPRE_MASK			0xf
+#define RCC_CFGR_HPRE_SHIFT			4
 
 /* SWS: System clock switch status */
 #define RCC_CFGR_SWS_SYSCLKSEL_MSICLK		0x0
 #define RCC_CFGR_SWS_SYSCLKSEL_HSICLK		0x1
 #define RCC_CFGR_SWS_SYSCLKSEL_HSECLK		0x2
 #define RCC_CFGR_SWS_SYSCLKSEL_PLLCLK		0x3
+#define RCC_CFGR_SWS_MASK			0x3
+#define RCC_CFGR_SWS_SHIFT			2
 
 /* SW: System clock switch */
 #define RCC_CFGR_SW_SYSCLKSEL_MSICLK		0x0
 #define RCC_CFGR_SW_SYSCLKSEL_HSICLK		0x1
 #define RCC_CFGR_SW_SYSCLKSEL_HSECLK		0x2
 #define RCC_CFGR_SW_SYSCLKSEL_PLLCLK		0x3
+#define RCC_CFGR_SW_MASK			0x3
+#define RCC_CFGR_SW_SHIFT			0
 
 /* --- RCC_CIR values ------------------------------------------------------ */
 
@@ -368,6 +388,9 @@ LGPL License Terms @ref lgpl_license
 #define RCC_CSR_PINRSTF				(1 << 26)
 #define RCC_CSR_OBLRSTF				(1 << 25)
 #define RCC_CSR_RMVF				(1 << 24)
+#define RCC_CSR_RESET_FLAGS	(RCC_CSR_LPWRRSTF | RCC_CSR_WWDGRSTF |\
+		RCC_CSR_IWDGRSTF | RCC_CSR_SFTRSTF | RCC_CSR_PORRSTF |\
+		RCC_CSR_PINRSTF | RCC_CSR_OBLRSTF)
 #define RCC_CSR_RTCRST				(1 << 23)
 #define RCC_CSR_RTCEN				(1 << 22)
 #define RCC_CSR_RTCSEL_SHIFT			(16)
@@ -384,7 +407,7 @@ LGPL License Terms @ref lgpl_license
 #define RCC_CSR_LSIRDY				(1 << 1)
 #define RCC_CSR_LSION				(1 << 0)
 
-typedef struct {
+struct rcc_clock_scale {
 	uint8_t pll_mul;
 	uint16_t pll_div;
 	uint8_t pll_source;
@@ -392,55 +415,205 @@ typedef struct {
 	uint8_t hpre;
 	uint8_t ppre1;
 	uint8_t ppre2;
-	vos_scale_t voltage_scale;
+	enum pwr_vos_scale voltage_scale;
+	uint32_t ahb_frequency;
 	uint32_t apb1_frequency;
 	uint32_t apb2_frequency;
 	uint8_t msi_range;
-} clock_scale_t;
+};
 
-typedef enum {
-	CLOCK_VRANGE1_HSI_PLL_24MHZ,
-	CLOCK_VRANGE1_HSI_PLL_32MHZ,
-	CLOCK_VRANGE1_HSI_RAW_16MHZ,
-	CLOCK_VRANGE1_HSI_RAW_4MHZ,
-	CLOCK_VRANGE1_MSI_RAW_4MHZ,
-	CLOCK_VRANGE1_MSI_RAW_2MHZ,
-	CLOCK_CONFIG_END
-} clock_config_entry_t;
+enum rcc_clock_config_entry {
+	RCC_CLOCK_VRANGE1_HSI_PLL_24MHZ,
+	RCC_CLOCK_VRANGE1_HSI_PLL_32MHZ,
+	RCC_CLOCK_VRANGE1_HSI_RAW_16MHZ,
+	RCC_CLOCK_VRANGE1_HSI_RAW_4MHZ,
+	RCC_CLOCK_VRANGE1_MSI_RAW_4MHZ,
+	RCC_CLOCK_VRANGE1_MSI_RAW_2MHZ,
+	RCC_CLOCK_CONFIG_END
+};
 
-extern const clock_scale_t clock_config[CLOCK_CONFIG_END];
+extern const struct rcc_clock_scale rcc_clock_config[RCC_CLOCK_CONFIG_END];
 
 
 /* --- Variable definitions ------------------------------------------------ */
-extern uint32_t rcc_ppre1_frequency;
-extern uint32_t rcc_ppre2_frequency;
+extern uint32_t rcc_ahb_frequency;
+extern uint32_t rcc_apb1_frequency;
+extern uint32_t rcc_apb2_frequency;
 
 /* --- Function prototypes ------------------------------------------------- */
 
-typedef enum {
-	PLL, HSE, HSI, MSI, LSE, LSI
-} osc_t;
+enum rcc_osc {
+	RCC_PLL, RCC_HSE, RCC_HSI, RCC_MSI, RCC_LSE, RCC_LSI
+};
+
+#define _REG_BIT(base, bit)		(((base) << 5) + (bit))
+
+enum rcc_periph_clken {
+	/* AHB peripherals  */
+	RCC_GPIOA	= _REG_BIT(0x1c, 0),
+	RCC_GPIOB	= _REG_BIT(0x1c, 1),
+	RCC_GPIOC	= _REG_BIT(0x1c, 2),
+	RCC_GPIOD	= _REG_BIT(0x1c, 3),
+	RCC_GPIOE	= _REG_BIT(0x1c, 4),
+	RCC_GPIOH	= _REG_BIT(0x1c, 5),
+	RCC_GPIOF	= _REG_BIT(0x1c, 6),
+	RCC_GPIOG	= _REG_BIT(0x1c, 7),
+	RCC_CRC		= _REG_BIT(0x1c, 12),
+	RCC_FLITF	= _REG_BIT(0x1c, 15),
+	RCC_DMA1	= _REG_BIT(0x1c, 24),
+	RCC_DMA2	= _REG_BIT(0x1c, 25),
+	RCC_AES		= _REG_BIT(0x1c, 27),
+	RCC_FSMC	= _REG_BIT(0x1c, 30),
+
+	/* APB2 peripherals */
+	RCC_SYSCFG	= _REG_BIT(0x20, 0),
+	RCC_TIM9	= _REG_BIT(0x20, 2),
+	RCC_TIM10	= _REG_BIT(0x20, 3),
+	RCC_TIM11	= _REG_BIT(0x20, 4),
+	RCC_ADC1	= _REG_BIT(0x20, 9),
+	RCC_SDIO	= _REG_BIT(0x20, 11),
+	RCC_SPI1	= _REG_BIT(0x20, 12),
+	RCC_USART1	= _REG_BIT(0x20, 14),
+
+	/* APB1 peripherals*/
+	RCC_TIM2	= _REG_BIT(0x24, 0),
+	RCC_TIM3	= _REG_BIT(0x24, 1),
+	RCC_TIM4	= _REG_BIT(0x24, 2),
+	RCC_TIM5	= _REG_BIT(0x24, 3),
+	RCC_TIM6	= _REG_BIT(0x24, 4),
+	RCC_TIM7	= _REG_BIT(0x24, 5),
+	RCC_LCD		= _REG_BIT(0x24, 9),
+	RCC_WWDG	= _REG_BIT(0x24, 11),
+	RCC_SPI2	= _REG_BIT(0x24, 14),
+	RCC_SPI3	= _REG_BIT(0x24, 15),
+	RCC_USART2	= _REG_BIT(0x24, 17),
+	RCC_USART3	= _REG_BIT(0x24, 18),
+	RCC_UART4	= _REG_BIT(0x24, 19),
+	RCC_UART5	= _REG_BIT(0x24, 20),
+	RCC_I2C1	= _REG_BIT(0x24, 21),
+	RCC_I2C2	= _REG_BIT(0x24, 22),
+	RCC_USB		= _REG_BIT(0x24, 23),
+	RCC_PWR		= _REG_BIT(0x24, 28),
+	RCC_DAC		= _REG_BIT(0x24, 29),
+	RCC_COMP	= _REG_BIT(0x24, 31),
+
+	/* AHB peripherals  */
+	SCC_GPIOA	= _REG_BIT(0x28, 0),
+	SCC_GPIOB	= _REG_BIT(0x28, 1),
+	SCC_GPIOC	= _REG_BIT(0x28, 2),
+	SCC_GPIOD	= _REG_BIT(0x28, 3),
+	SCC_GPIOE	= _REG_BIT(0x28, 4),
+	SCC_GPIOH	= _REG_BIT(0x28, 5),
+	SCC_GPIOF	= _REG_BIT(0x28, 6),
+	SCC_GPIOG	= _REG_BIT(0x28, 7),
+	SCC_CRC		= _REG_BIT(0x28, 12),
+	SCC_FLITF	= _REG_BIT(0x28, 15),
+	SCC_SRAM	= _REG_BIT(0x28, 16),
+	SCC_DMA1	= _REG_BIT(0x28, 24),
+	SCC_DMA2	= _REG_BIT(0x28, 25),
+	SCC_AES		= _REG_BIT(0x28, 27),
+	SCC_FSMC	= _REG_BIT(0x28, 30),
+
+	/* APB2 peripherals */
+	SCC_SYSCFG	= _REG_BIT(0x2c, 0),
+	SCC_TIM9	= _REG_BIT(0x2c, 2),
+	SCC_TIM10	= _REG_BIT(0x2c, 3),
+	SCC_TIM11	= _REG_BIT(0x2c, 4),
+	SCC_ADC1	= _REG_BIT(0x2c, 9),
+	SCC_SDIO	= _REG_BIT(0x2c, 11),
+	SCC_SPI1	= _REG_BIT(0x2c, 12),
+	SCC_USART1	= _REG_BIT(0x2c, 14),
+
+	/* APB1 peripherals*/
+	SCC_TIM2	= _REG_BIT(0x24, 0),
+	SCC_TIM3	= _REG_BIT(0x24, 1),
+	SCC_TIM4	= _REG_BIT(0x24, 2),
+	SCC_TIM5	= _REG_BIT(0x24, 3),
+	SCC_TIM6	= _REG_BIT(0x24, 4),
+	SCC_TIM7	= _REG_BIT(0x24, 5),
+	SCC_LCD		= _REG_BIT(0x24, 9),
+	SCC_WWDG	= _REG_BIT(0x24, 11),
+	SCC_SPI2	= _REG_BIT(0x24, 14),
+	SCC_SPI3	= _REG_BIT(0x24, 15),
+	SCC_USART2	= _REG_BIT(0x24, 17),
+	SCC_USART3	= _REG_BIT(0x24, 18),
+	SCC_UART4	= _REG_BIT(0x24, 19),
+	SCC_UART5	= _REG_BIT(0x24, 20),
+	SCC_I2C1	= _REG_BIT(0x24, 21),
+	SCC_I2C2	= _REG_BIT(0x24, 22),
+	SCC_USB		= _REG_BIT(0x24, 23),
+	SCC_PWR		= _REG_BIT(0x24, 28),
+	SCC_DAC		= _REG_BIT(0x24, 29),
+	SCC_COMP	= _REG_BIT(0x24, 31),
+};
+
+enum rcc_periph_rst {
+	/* AHB peripherals  */
+	RST_GPIOA	= _REG_BIT(0x10, 0),
+	RST_GPIOB	= _REG_BIT(0x10, 1),
+	RST_GPIOC	= _REG_BIT(0x10, 2),
+	RST_GPIOD	= _REG_BIT(0x10, 3),
+	RST_GPIOE	= _REG_BIT(0x10, 4),
+	RST_GPIOH	= _REG_BIT(0x10, 5),
+	RST_GPIOF	= _REG_BIT(0x10, 6),
+	RST_GPIOG	= _REG_BIT(0x10, 7),
+	RST_CRC		= _REG_BIT(0x10, 12),
+	RST_FLITF	= _REG_BIT(0x10, 15),
+	RST_DMA1	= _REG_BIT(0x10, 24),
+	RST_DMA2	= _REG_BIT(0x10, 25),
+	RST_AES		= _REG_BIT(0x10, 27),
+	RST_FSMC	= _REG_BIT(0x10, 30),
+
+	/* APB2 peripherals */
+	RST_SYSCFG	= _REG_BIT(0x14, 0),
+	RST_TIM9	= _REG_BIT(0x14, 2),
+	RST_TIM10	= _REG_BIT(0x14, 3),
+	RST_TIM11	= _REG_BIT(0x14, 4),
+	RST_ADC1	= _REG_BIT(0x14, 9),
+	RST_SDIO	= _REG_BIT(0x14, 11),
+	RST_SPI1	= _REG_BIT(0x14, 12),
+	RST_USART1	= _REG_BIT(0x14, 14),
+
+	/* APB1 peripherals*/
+	RST_TIM2	= _REG_BIT(0x18, 0),
+	RST_TIM3	= _REG_BIT(0x18, 1),
+	RST_TIM4	= _REG_BIT(0x18, 2),
+	RST_TIM5	= _REG_BIT(0x18, 3),
+	RST_TIM6	= _REG_BIT(0x18, 4),
+	RST_TIM7	= _REG_BIT(0x18, 5),
+	RST_LCD		= _REG_BIT(0x18, 9),
+	RST_WWDG	= _REG_BIT(0x18, 11),
+	RST_SPI2	= _REG_BIT(0x18, 14),
+	RST_SPI3	= _REG_BIT(0x18, 15),
+	RST_USART2	= _REG_BIT(0x18, 17),
+	RST_USART3	= _REG_BIT(0x18, 18),
+	RST_UART4	= _REG_BIT(0x18, 19),
+	RST_UART5	= _REG_BIT(0x18, 20),
+	RST_I2C1	= _REG_BIT(0x18, 21),
+	RST_I2C2	= _REG_BIT(0x18, 22),
+	RST_USB		= _REG_BIT(0x18, 23),
+	RST_PWR		= _REG_BIT(0x18, 28),
+	RST_DAC		= _REG_BIT(0x18, 29),
+	RST_COMP	= _REG_BIT(0x18, 31),
+};
+#include <libopencm3/stm32/common/rcc_common_all.h>
 
 BEGIN_DECLS
 
-void rcc_osc_ready_int_clear(osc_t osc);
-void rcc_osc_ready_int_enable(osc_t osc);
-void rcc_osc_ready_int_disable(osc_t osc);
-int rcc_osc_ready_int_flag(osc_t osc);
+void rcc_osc_ready_int_clear(enum rcc_osc osc);
+void rcc_osc_ready_int_enable(enum rcc_osc osc);
+void rcc_osc_ready_int_disable(enum rcc_osc osc);
+int rcc_osc_ready_int_flag(enum rcc_osc osc);
 void rcc_css_int_clear(void);
 int rcc_css_int_flag(void);
-void rcc_wait_for_osc_ready(osc_t osc);
-void rcc_wait_for_sysclk_status(osc_t osc);
-void rcc_osc_on(osc_t osc);
-void rcc_osc_off(osc_t osc);
+void rcc_wait_for_sysclk_status(enum rcc_osc osc);
+void rcc_osc_on(enum rcc_osc osc);
+void rcc_osc_off(enum rcc_osc osc);
 void rcc_css_enable(void);
 void rcc_css_disable(void);
-void rcc_osc_bypass_enable(osc_t osc);
-void rcc_osc_bypass_disable(osc_t osc);
-void rcc_peripheral_enable_clock(volatile uint32_t *reg, uint32_t en);
-void rcc_peripheral_disable_clock(volatile uint32_t *reg, uint32_t en);
-void rcc_peripheral_reset(volatile uint32_t *reg, uint32_t reset);
-void rcc_peripheral_clear_reset(volatile uint32_t *reg, uint32_t clear_reset);
+void rcc_osc_bypass_enable(enum rcc_osc osc);
+void rcc_osc_bypass_disable(enum rcc_osc osc);
+void rcc_set_msi_range(uint32_t range);
 void rcc_set_sysclk_source(uint32_t clk);
 void rcc_set_pll_configuration(uint32_t source, uint32_t multiplier,
 			       uint32_t divisor);
@@ -453,9 +626,9 @@ void rcc_set_usbpre(uint32_t usbpre);
 void rcc_set_rtcpre(uint32_t rtcpre);
 uint32_t rcc_system_clock_source(void);
 void rcc_rtc_select_clock(uint32_t clock);
-void rcc_clock_setup_msi(const clock_scale_t *clock);
-void rcc_clock_setup_hsi(const clock_scale_t *clock);
-void rcc_clock_setup_pll(const clock_scale_t *clock);
+void rcc_clock_setup_msi(const struct rcc_clock_scale *clock);
+void rcc_clock_setup_hsi(const struct rcc_clock_scale *clock);
+void rcc_clock_setup_pll(const struct rcc_clock_scale *clock);
 void rcc_backupdomain_reset(void);
 
 END_DECLS

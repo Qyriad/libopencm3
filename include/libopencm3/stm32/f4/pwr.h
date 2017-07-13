@@ -34,8 +34,7 @@ LGPL License Terms @ref lgpl_license
 #ifndef LIBOPENCM3_PWR_H
 #define LIBOPENCM3_PWR_H
 
-#include <libopencm3/stm32/memorymap.h>
-#include <libopencm3/stm32/common/pwr_common_all.h>
+#include <libopencm3/stm32/common/pwr_common_v1.h>
 
 /*
  * This file extends the common STM32 version with definitions only
@@ -73,14 +72,14 @@ LGPL License Terms @ref lgpl_license
 
 /* --- Function prototypes ------------------------------------------------- */
 
-typedef enum {
-	SCALE1,
-	SCALE2,
-} vos_scale_t;
+enum pwr_vos_scale {
+	PWR_SCALE1,
+	PWR_SCALE2,
+};
 
 BEGIN_DECLS
 
-void pwr_set_vos_scale(vos_scale_t scale);
+void pwr_set_vos_scale(enum pwr_vos_scale scale);
 
 END_DECLS
 

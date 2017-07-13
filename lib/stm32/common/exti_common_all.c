@@ -20,8 +20,9 @@
  * This provides the code for the "next gen" EXTI block provided in F2/F4/L1
  * devices.  (differences only in the source selection)
  */
+/**@{*/
 
-#include <libopencm3/stm32/memorymap.h>
+
 #include <libopencm3/stm32/exti.h>
 #include <libopencm3/stm32/gpio.h>
 #if !defined(AFIO_BASE)
@@ -110,7 +111,7 @@ void exti_select_source(uint32_t exti, uint32_t gpioport)
 		case GPIOD:
 			bits = 3;
 			break;
-#if defined(GPIOE) && defined(GPIO_PORT_E_BASE) 
+#if defined(GPIOE) && defined(GPIO_PORT_E_BASE)
 		case GPIOE:
 			bits = 4;
 			break;
@@ -135,6 +136,16 @@ void exti_select_source(uint32_t exti, uint32_t gpioport)
 			bits = 8;
 			break;
 #endif
+#if defined(GPIOJ) && defined(GPIO_PORT_J_BASE)
+		case GPIOJ:
+			bits = 9;
+			break;
+#endif
+#if defined(GPIOK) && defined(GPIO_PORT_K_BASE)
+		case GPIOK:
+			bits = 10;
+			break;
+#endif
 		}
 
 		uint8_t shift = (uint8_t)(4 * (line % 4));
@@ -149,3 +160,5 @@ void exti_select_source(uint32_t exti, uint32_t gpioport)
 #endif
 	};
 }
+/**@}*/
+

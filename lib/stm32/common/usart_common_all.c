@@ -48,23 +48,23 @@ usart_reg_base
 
 void usart_set_baudrate(uint32_t usart, uint32_t baud)
 {
-	uint32_t clock = rcc_ppre1_frequency;
+	uint32_t clock = rcc_apb1_frequency;
 
 #if defined STM32F2 || defined STM32F4
 	if ((usart == USART1) ||
 	    (usart == USART6)) {
-		clock = rcc_ppre2_frequency;
+		clock = rcc_apb2_frequency;
 	}
 #else
 	if (usart == USART1) {
-		clock = rcc_ppre2_frequency;
+		clock = rcc_apb2_frequency;
 	}
 #endif
 
 	/*
 	 * Yes it is as simple as that. The reference manual is
 	 * talking about fractional calculation but it seems to be only
-	 * marketting babble to sound awesome. It is nothing else but a
+	 * marketing babble to sound awesome. It is nothing else but a
 	 * simple divider to generate the correct baudrate.
 	 *
 	 * Note: We round() the value rather than floor()ing it, for more

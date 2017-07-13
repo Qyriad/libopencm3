@@ -1,4 +1,4 @@
-/* This provides unification of code over STM32F subfamilies */
+/* This provides unification of code over STM32 subfamilies */
 
 /*
  * This file is part of the libopencm3 project.
@@ -19,6 +19,9 @@
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <libopencm3/cm3/common.h>
+#include <libopencm3/stm32/memorymap.h>
+
 #if defined(STM32F0)
 #       include <libopencm3/stm32/f0/exti.h>
 #elif defined(STM32F1)
@@ -29,6 +32,8 @@
 #       include <libopencm3/stm32/f3/exti.h>
 #elif defined(STM32F4)
 #       include <libopencm3/stm32/f4/exti.h>
+#elif defined(STM32L0)
+#       include <libopencm3/stm32/l0/exti.h>
 #elif defined(STM32L1)
 #       include <libopencm3/stm32/l1/exti.h>
 #else

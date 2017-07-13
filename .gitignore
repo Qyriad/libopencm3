@@ -7,12 +7,14 @@
 *.a
 *.elf
 lib/*.ld
+*.stylecheck
 *.swp
 \#*
 .\#*
 *~
 *.map
 *.log
+*.pyc
 html/
 latex/
 *.pdf
@@ -28,6 +30,15 @@ include/libopencmsis/lm3s/
 include/libopencmsis/lpc13xx/
 include/libopencmsis/lpc17xx/
 include/libopencmsis/lpc43xx/
-include/libopencmsis/stm32/
-include/libopencmsis/sam3x/
 include/libopencmsis/sam/
+include/libopencmsis/stm32/
+include/libopencmsis/vf6xx/
+
+# Editor/IDE config files
+nbproject/
+.idea/
+.project
+locm3.sublime-workspace
+
+# cscope databases
+cscope.out

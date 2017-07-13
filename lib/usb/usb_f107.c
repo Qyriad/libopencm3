@@ -21,6 +21,7 @@
 #include <libopencm3/cm3/common.h>
 #include <libopencm3/stm32/tools.h>
 #include <libopencm3/stm32/otg_fs.h>
+#include <libopencm3/stm32/rcc.h>
 #include <libopencm3/usb/usbd.h>
 #include "usb_private.h"
 #include "usb_fx07_common.h"
@@ -52,23 +53,32 @@ const struct _usbd_driver stm32f107_usb_driver = {
 /** Initialize the USB device controller hardware of the STM32. */
 static usbd_device *stm32f107_usbd_init(void)
 {
-	OTG_FS_GINTSTS = OTG_FS_GINTSTS_MMIS;
-
-	OTG_FS_GUSBCFG |= OTG_FS_GUSBCFG_PHYSEL;
-	/* Enable VBUS sensing in device mode and power down the PHY. */
-	OTG_FS_GCCFG |= OTG_FS_GCCFG_VBUSBSEN | OTG_FS_GCCFG_PWRDWN;
+	rcc_periph_clock_enable(RCC_OTGFS);
+	OTG_FS_GUSBCFG |= OTG_GUSBCFG_PHYSEL;
 
 	/* Wait for AHB idle. */
-	while (!(OTG_FS_GRSTCTL & OTG_FS_GRSTCTL_AHBIDL));
+	while (!(OTG_FS_GRSTCTL & OTG_GRSTCTL_AHBIDL));
 	/* Do core soft reset. */
-	OTG_FS_GRSTCTL |= OTG_FS_GRSTCTL_CSRST;
-	while (OTG_FS_GRSTCTL & OTG_FS_GRSTCTL_CSRST);
+	OTG_FS_GRSTCTL |= OTG_GRSTCTL_CSRST;
+	while (OTG_FS_GRSTCTL & OTG_GRSTCTL_CSRST);
+
+	if (OTG_FS_CID >= OTG_CID_HAS_VBDEN) {
+		/* Enable VBUS detection in device mode and power up the PHY. */
+		OTG_FS_GCCFG |= OTG_GCCFG_VBDEN | OTG_GCCFG_PWRDWN;
+	} else {
+		/* Enable VBUS sensing in device mode and power up the PHY. */
+		OTG_FS_GCCFG |= OTG_GCCFG_VBUSBSEN | OTG_GCCFG_PWRDWN;
+	}
+	/* Explicitly enable DP pullup (not all cores do this by default) */
+	OTG_FS_DCTL &= ~OTG_DCTL_SDIS;
 
 	/* Force peripheral only mode. */
-	OTG_FS_GUSBCFG |= OTG_FS_GUSBCFG_FDMOD | OTG_FS_GUSBCFG_TRDT_MASK;
+	OTG_FS_GUSBCFG |= OTG_GUSBCFG_FDMOD | OTG_GUSBCFG_TRDT_MASK;
+
+	OTG_FS_GINTSTS = OTG_GINTSTS_MMIS;
 
 	/* Full speed device. */
-	OTG_FS_DCFG |= OTG_FS_DCFG_DSPD;
+	OTG_FS_DCFG |= OTG_DCFG_DSPD;
 
 	/* Restart the PHY clock. */
 	OTG_FS_PCGCCTL = 0;
@@ -77,15 +87,14 @@ static usbd_device *stm32f107_usbd_init(void)
 	usbd_dev.fifo_mem_top = stm32f107_usb_driver.rx_fifo_size;
 
 	/* Unmask interrupts for TX and RX. */
-	OTG_FS_GAHBCFG |= OTG_FS_GAHBCFG_GINT;
-	OTG_FS_GINTMSK = OTG_FS_GINTMSK_ENUMDNEM |
-			 OTG_FS_GINTMSK_RXFLVLM |
-			 OTG_FS_GINTMSK_IEPINT |
-			 OTG_FS_GINTMSK_USBSUSPM |
-			 OTG_FS_GINTMSK_WUIM |
-			 OTG_FS_GINTMSK_SOFM;
+	OTG_FS_GAHBCFG |= OTG_GAHBCFG_GINT;
+	OTG_FS_GINTMSK = OTG_GINTMSK_ENUMDNEM |
+			 OTG_GINTMSK_RXFLVLM |
+			 OTG_GINTMSK_IEPINT |
+			 OTG_GINTMSK_USBSUSPM |
+			 OTG_GINTMSK_WUIM;
 	OTG_FS_DAINTMSK = 0xF;
-	OTG_FS_DIEPMSK = OTG_FS_DIEPMSK_XFRCM;
+	OTG_FS_DIEPMSK = OTG_DIEPMSK_XFRCM;
 
 	return &usbd_dev;
 }

@@ -1,4 +1,4 @@
-/* This provides unification of code over STM32F subfamilies */
+/* This provides unification of code over STM32 subfamilies */
 
 /*
  * This file is part of the libopencm3 project.
@@ -16,6 +16,10 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+#include <libopencm3/cm3/common.h>
+#include <libopencm3/stm32/memorymap.h>
+
 #if defined(STM32F0)
 #       include <libopencm3/stm32/f0/flash.h>
 #elif defined(STM32F1)
@@ -26,8 +30,12 @@
 #       include <libopencm3/stm32/f3/flash.h>
 #elif defined(STM32F4)
 #       include <libopencm3/stm32/f4/flash.h>
+#elif defined(STM32F7)
+#       include <libopencm3/stm32/f7/flash.h>
 #elif defined(STM32L1)
 #       include <libopencm3/stm32/l1/flash.h>
+#elif defined(STM32L4)
+#       include <libopencm3/stm32/l4/flash.h>
 #else
 #       error "stm32 family not defined."
 #endif

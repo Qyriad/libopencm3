@@ -299,8 +299,8 @@ void gpio_set_output_config(uint32_t gpioport, enum gpio_output_type otype,
 	}
 }
 
-#define PCTL_AF(pin, af)		(af << (pin << 2))
-#define PCTL_MASK(pin)			PCTL_AF(pin, 0xf)
+#define PCTL_AF(pin, af)		((af) << ((pin) << 2))
+#define PCTL_MASK(pin)			PCTL_AF((pin), 0xf)
 /**
  * \brief Multiplex group of pins to the given alternate function
  *
@@ -502,7 +502,7 @@ void gpio_toggle(uint32_t gpioport, uint8_t gpios)
  *		serviced_irq |= GPIO4;
  *	}
  *
- *	// Clear the interupt flag for the processed IRQs
+ *	// Clear the interrupt flag for the processed IRQs
  *	gpio_clear_interrupt_flag(GPIOF, serviced_irqs);
  * }
  * @endcode
