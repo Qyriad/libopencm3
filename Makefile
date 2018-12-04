@@ -48,7 +48,7 @@ MAKEFLAGS += --no-print-directory
 endif
 
 YAMLFILES	:= $(shell find . -name 'irq.yaml')
-STYLECHECKFILES := $(shell find . -name '*.[ch]')
+STYLECHECKFILES := $(shell find . -name "'*.[ch]'")
 
 all: build
 
