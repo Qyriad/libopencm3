@@ -34,7 +34,9 @@ LIBDIR		:= $(DESTDIR)/$(PREFIX)/lib
 SHAREDIR	:= $(DESTDIR)/$(PREFIX)/share/libopencm3/scripts
 INSTALL		:= install
 
+ifeq ($(SRCLIBDIR),)
 SRCLIBDIR:= $(realpath lib)
+endif
 
 TARGETS:= stm32/f0 stm32/f1 stm32/f2 stm32/f3 stm32/f4 stm32/l1 lpc13xx lpc17xx \
 	  lpc43xx/m4 lpc43xx/m0 lm3s lm4f \
@@ -48,7 +50,7 @@ MAKEFLAGS += --no-print-directory
 endif
 
 YAMLFILES	:= $(shell find . -name 'irq.yaml')
-STYLECHECKFILES := $(shell find . -name "'*.h'")
+STYLECHECKFILES := $(shell find . -name '*.[ch]')
 
 all: build
 
